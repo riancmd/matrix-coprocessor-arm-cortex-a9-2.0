@@ -66,11 +66,10 @@ module control_unit(
 	wire sub_ovf1, sub_ovf2, sub_ovf3, sub_ovf4, sub_ovf5; //Overflow da subtraçaõ
 	
 	//Multiplicação entre matrizes
-	wire [31:0] multMA_result1, multMA_result2, multMA_result3, multMA_result4, multMA_result5,
-	multMA_result6, multMA_result7, multMA_result8, multMA_result9; //Resultados da multiplicação entre matrizes
+	wire [199:0] multMA_result; //Resultado da multiplicação entre matrizes
 	
 	//Fios necessários para concatenacao
-	wire [31:0] multMA_slice1, multMA_slice2, multMA_slice3, multMA_slice4, multMA_slice5,
+	/*wire [31:0] multMA_slice1, multMA_slice2, multMA_slice3, multMA_slice4, multMA_slice5,
 	multMA_slice6, multMA_slice7, multMA_slice8, multMA_slice9;
 	assign multMA_slice1 = multMA_result1;
 	assign multMA_slice2 = multMA_result2;
@@ -80,10 +79,9 @@ module control_unit(
 	assign multMA_slice6 = multMA_result6;
 	assign multMA_slice7 = multMA_result7;
 	assign multMA_slice8 = multMA_result8;
-	assign multMA_slice9 = multMA_result9;
+	assign multMA_slice9 = multMA_result9;*/
 	
-	wire multMA_ovf1, multMA_ovf2, multMA_ovf3, multMA_ovf4, multMA_ovf5,
-	multMA_ovf6, multMA_ovf7, multMA_ovf8, multMA_ovf9; //Overflow da multiplicação entre matrizes
+	wire multMA_ovf; //Overflow da multiplicação entre matrizes
 	
 	//Multiplicação por inteiro
 	wire [39:0] multMI_result1, multMI_result2, multMI_result3, multMI_result4, multMI_result5; //Resultados da multiplicação por inteiro
@@ -113,7 +111,7 @@ module control_unit(
 	wire opp_ovf1, opp_ovf2, opp_ovf3, opp_ovf4, opp_ovf5; //Overflow da oposta caso exista elemento igual a -128
 	
 	
-	//Colunas temporárias da multplicaçao entre matrizes
+	//Colunas temporárias da multiplicaçao entre matrizes
 	reg [39:0] m2_c0, m2_c1, m2_c2, m2_c3, m2_c4; //Primeira coluna até a última nessa ordem
 	
 	//Módulos de soma para cada linha
@@ -130,17 +128,9 @@ module control_unit(
 	sub_M subtractorL4(matrix1_reg[79:40], matrix2_reg[79:40], rst, sub_result4, sub_ovf4);
 	sub_M subtractorL5(matrix1_reg[39:0], matrix2_reg[39:0], rst, sub_result5, sub_ovf5);
 	
-	//Módulos de multiplicação entre matrizes para cada 2 linhas e 2 colunas					//Linha(h) x Coluna(c)
-	mult_M multi_MAL1(matrix1_reg[199:120], {m2_c0,m2_c1}, rst, multMA_result1, multMA_ovf1); //l1, l2 x c1, c2
-	mult_M multi_MAL2(matrix1_reg[199:120], {m2_c2,m2_c3}, rst, multMA_result2, multMA_ovf2); //l1, l2 x c3 c4
-	mult_M multi_MAL3(matrix1_reg[199:120], {m2_c4, 40'b0}, rst, multMA_result3, multMA_ovf3); //l1, l2 x c5
-	mult_M multi_MAL4(matrix1_reg[119:40], {m2_c0,m2_c1}, rst, multMA_result4, multMA_ovf4); //l3, l4 x c1, c2
-	mult_M multi_MAL5(matrix1_reg[119:40], {m2_c2,m2_c3}, rst, multMA_result5, multMA_ovf5); //l3, l4 x c3, c4
-	mult_M multi_MAL6(matrix1_reg[119:40], {m2_c4, 40'b0}, rst, multMA_result6, multMA_ovf6); //l3, l4 x c5
-	mult_M multi_MAL7({matrix1_reg[39:0], 40'b0}, {m2_c0,m2_c1}, rst, multMA_result7, multMA_ovf7); //l5 x c1, c2
-	mult_M multi_MAL8({matrix1_reg[39:0], 40'b0}, {m2_c2,m2_c3}, rst, multMA_result8, multMA_ovf8); //l5 x c3, c4
-	mult_M multi_MAL9({matrix1_reg[39:0], 40'b0}, {m2_c4, 40'b0}, rst, multMA_result9, multMA_ovf9); //l5 x c5
-	
+	//Módulos de multiplicação entre matrizes para cada 2 linhas e 2 colunas 
+	//Insere a matriz A inteira como input e a matriz B organizada em colunas
+	mult_M multi_MA(matrix1_reg[199:0], {m2_c0, m2_c1, m2_c2, m2_c3, m2_c4}, rst, multMA_result, multMA_ovf)
 	
 	//Módulos de multiplicação por inteiro para cada linha
 	mult_MI multi_MIL1(matrix1_reg[199:160], matrix2_reg[7:0], rst, multMI_result1, multMI_ovf1);
@@ -296,14 +286,8 @@ module control_unit(
 						end
 						
 						MULT_MATRIZ: begin
-							result_reg[199:160] = {multMA_slice1[31:16], multMA_slice2[31:16], multMA_slice3[31:24]};
-							result_reg[159:120] = {multMA_slice1[15:0], multMA_slice2[15:0], multMA_slice3[15:8]};
-							result_reg[119:80] = {multMA_slice4[31:16], multMA_slice5[31:16], multMA_slice6[31:24]};
-							result_reg[79:40] = {multMA_slice4[15:0], multMA_slice5[15:0], multMA_slice6[15:8]};
-							result_reg[39:0] = {multMA_slice7[31:16], multMA_slice8[31:16], multMA_slice9[31:24]};
-							overflow = multMA_ovf1 || multMA_ovf2 || multMA_ovf3 ||
-										  multMA_ovf4 || multMA_ovf5 || multMA_ovf6 ||
-										  multMA_ovf7 || multMA_ovf8 || multMA_ovf9;
+							result_reg[199:0] = ;
+							overflow = multMA_ovf;
 						end
 						
 						MULT_INT: begin
