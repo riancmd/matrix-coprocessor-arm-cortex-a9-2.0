@@ -5,9 +5,9 @@ module mult_M(input signed [199:0] lin, col, // linhas da matriz 1, colunas da m
 		output signed ovf); // overflow
 		
 		wire signed [7:0] n_11, n_12, n_13, n_14, n_15, 
-						  n_21, n_22, n_23, n_24, n_25
-						  n_31, n_32, n_33, n_34, n_35
-						  n_41, n_42, n_43, n_44, n_45
+						  n_21, n_22, n_23, n_24, n_25,
+						  n_31, n_32, n_33, n_34, n_35,
+						  n_41, n_42, n_43, n_44, n_45,
 						  n_51, n_52, n_53, n_54, n_55; // valores parciais dos produtos internos
 		wire ovf1, ovf2, ovf3, ovf4, ovf5, 
 			 ovf6, ovf7, ovf8, ovf9, ovf10, 
@@ -65,6 +65,6 @@ module mult_M(input signed [199:0] lin, col, // linhas da matriz 1, colunas da m
 						n_31, n_32, n_33, n_34, n_35,
 						n_41, n_42, n_43, n_44, n_45,
 						n_51, n_52, n_53, n_54, n_55};
-		
+
 		
 endmodule
