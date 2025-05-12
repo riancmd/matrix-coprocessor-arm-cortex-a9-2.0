@@ -1,7 +1,6 @@
 //Módulo de controle para leitura, decodificação, execução e escrita de dados
 module control_unit(
 	input clk, rst, start, //Sinal de clock, reset e início de uma nova operação
-	input clk_button, //Sinal de clock vindo do botão para depuração
 	output reg ready, //Sinal para indicar que o resultado final está pronto
 	output overflow_wire, //Sinal de overflow da operação
 	output [2:0] state_output, //Estado atual
@@ -44,7 +43,14 @@ module control_unit(
 		.wren(wren),
 		.q(load)
 	);
-
+	
+	//Instância do divisor de clock
+	clk_divider clk_divider(
+		.clk_in(clk),
+		.rst(rst),
+		.clk_out(clk_coprocessor)
+	);
+	
 	//Registradores para endereço e ativação de escrita na memória
 	reg [1:0] adrss;
 	reg wren;
@@ -130,7 +136,7 @@ module control_unit(
 	
 	//Módulos de multiplicação entre matrizes para cada 2 linhas e 2 colunas 
 	//Insere a matriz A inteira como input e a matriz B organizada em colunas
-	mult_M multi_MA(matrix1_reg[199:0], {m2_c0, m2_c1, m2_c2, m2_c3, m2_c4}, rst, multMA_result, multMA_ovf)
+	mult_M multi_MA(matrix1_reg[199:0], {m2_c0, m2_c1, m2_c2, m2_c3, m2_c4}, rst, multMA_result, multMA_ovf);
 	
 	//Módulos de multiplicação por inteiro para cada linha
 	mult_MI multi_MIL1(matrix1_reg[199:160], matrix2_reg[7:0], rst, multMI_result1, multMI_ovf1);
@@ -207,7 +213,7 @@ module control_unit(
 	reg [199:0] result_reg;
 	reg operation_active;
 
-	always @(posedge clk_button or posedge rst) begin
+	always @(posedge clk_coprocessor or posedge rst) begin
 		if (rst) begin
 			state = IDLE;
 			msize_reg = 0;
@@ -286,7 +292,7 @@ module control_unit(
 						end
 						
 						MULT_MATRIZ: begin
-							result_reg[199:0] = ;
+							result_reg[199:0] = multMA_result;
 							overflow = multMA_ovf;
 						end
 						
