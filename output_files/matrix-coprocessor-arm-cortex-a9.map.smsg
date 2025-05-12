@@ -1,3 +1,0 @@
-Warning (10268): Verilog HDL information at add_M.v(10): always construct contains both blocking and non-blocking assignments File: C:/Users/victo/matrix-coprocessor-arm-cortex-a9-2.0/src/modules/add_M.v Line: 10
-Warning (10268): Verilog HDL information at sub_M.v(10): always construct contains both blocking and non-blocking assignments File: C:/Users/victo/matrix-coprocessor-arm-cortex-a9-2.0/src/modules/sub_M.v Line: 10
-Warning (10268): Verilog HDL information at control_unit.v(216): always construct contains both blocking and non-blocking assignments File: C:/Users/victo/matrix-coprocessor-arm-cortex-a9-2.0/src/modules/control_unit.v Line: 216
