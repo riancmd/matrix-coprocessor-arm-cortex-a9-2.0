@@ -1,4 +1,6 @@
 import os
+# Para utilizar o script, basta colar um feixe de 200 bits da matriz desejada. A matriz em decimal, minimamente formatada,
+# será exibida em seguida.
 
 def generateMenu():
     matrizz = input('Digite a matriz completa: ')
