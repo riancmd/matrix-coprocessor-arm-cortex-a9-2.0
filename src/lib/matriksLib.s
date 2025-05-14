@@ -24,10 +24,44 @@
 
 @ Constantes para o mmap
 
+@ Dados
+.data
+dev_mem:
+    .asciz "/dev/mem"
+input_buffer: 
+    .space 4
+menu1: 
+    .string "|*****| matriks |*****|\n" //o mesmo que .asciz
+len1 = 
+    .-menu1
+menu2: 
+    .string "(1) Operação\n"
+len2 = 
+    .-menu2
+menu3:  
+    .string "(2) Sair\n"
+len3 = 
+    .-menu3
+menu4: 
+    .string "Operações: (1) Soma, (2) Subtração, (3) Multiplicação de matrizes\n"
+len4 = 
+    .-menu4
+menu5: 
+    .string "(4) Multiplicação por inteiro, (5) Determinante, (6) Transposta, (7) Oposta\n"
+len5 = 
+    .-menu5
 
 .global _start
 
 _start:
+    
+
+    @ Termina o programa
+    MOV R7,#1  @ Syscall: exit
+    SWI 0
+
+@ Procedimento que exibe o menu
+menu:
     @ Exibe informações do menu
     MOV R0,STDO @standard output
     LDR R1,=menu1 @ Guarda valor da string
@@ -58,38 +92,9 @@ _start:
     @Recebe input do usuário
     mov r7,READ @syscall: read
     mov r0,STDI @standard input
-    ldr r1,=buffer
+    ldr r1,=input_buffer
     mov r2,#4
     svc #0
     mov r10,r0 @salva os bits lidos em r10, p preservar entre chamadas
 
-    @ Termina o programa
-    MOV R7,#1  @ Syscall: exit
-    SWI 0
-
-    
-.data //Seção de dados
-dev_mem:
-    .asciz "/dev/mem"
-buffer: 
-    .space 4
-menu1: 
-    .string "|*****| matriks |*****|\n" //o mesmo que .asciz
-len1 = 
-    .-menu1
-menu2: 
-    .string "(1) Operação\n"
-len2 = 
-    .-menu2
-menu3:  
-    .string "(2) Sair\n"
-len3 = 
-    .-menu3
-menu4: 
-    .string "Operações: (1) Soma, (2) Subtração, (3) Multiplicação de matrizes\n"
-len4 = 
-    .-menu4
-menu5: 
-    .string "(4) Multiplicação por inteiro, (5) Determinante, (6) Transposta, (7) Oposta\n"
-len5 = 
-    .-menu5
+    B menu
