@@ -12,6 +12,7 @@
 .equ WRITE, 4
 .equ OPEN,  5
 .equ CLOSE, 6
+.EQU MMAP, 192
 
 .equ STDI, 0 @ Standard input
 .equ STDO, 1 @ Standard output
@@ -23,6 +24,12 @@
 .equ PAGE_SIZE,         4096        @ Tamanho da página
 
 @ Constantes para o mmap
+.equ PROT_READ,      1
+.equ PROT_WRITE,     2
+.equ MAP_SHARED,     1
+.equ O_RDWR,         2
+.equ O_SYNC,         0x1000
+.equ MAP_FAILED,     -1
 
 @ Dados
 .data
@@ -50,20 +57,39 @@ menu5:
     .string "(4) Multiplicação por inteiro, (5) Determinante, (6) Transposta, (7) Oposta\n"
 len5 = 
     .-menu5
+mmap_error:
+    .string "Erro no mapeamento de memória. Finalizando...\n"
+len6 =
+    .-mmap_error
 
 .global _start
 
 _start:
-    
-
-    @ Termina o programa
-    MOV R7,#1  @ Syscall: exit
+    LDR R0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
+    LDR R1,O_RDWR @ "open for read and write"
+    MOV R7,OPEN
     SWI 0
+
+    CMP R0,#0
+    BLT mmap_fail @ Caso haja algum erro no mapeamento, encerra o programa
+
+    @ Mapeamento da memória
+    MOV R0,#0 @ Kernel escolhe qual endereço utilizar
+    MOV R1,#PAGE_SIZE @ Tamanho do mapeamento = 4096b
+    MOV R2,#3
+    MOV R3,#MAP_SHARED
+    MOV R4,R10 @ File descriptor do /dev/mem
+    MOV R5,#FPGA_BRIDGE_BASE @ Endereço físico base
+    MOV R7,#MMAP
+    SWI 0
+    CMP R0,#MAP_FAILED
+    BEQ mmap_fail
+    MOV R8, R0 @ Endereço virtual mapeado em r8
+    ADD R9, R8, #PIO_INPUT_OFFSET @ r9 = endereço do PIO de entrada
 
 @ Procedimento que exibe o menu
 menu:
-    @ Exibe informações do menu
-    MOV R0,STDO @standard output
+    MOV R0,STDO @ Sinaliza uso de standard output
     LDR R1,=menu1 @ Guarda valor da string
     LDR R2,=len1
     MOV R7,WRITE @ Syscall: write
@@ -90,11 +116,22 @@ menu:
     SWI 0
 
     @Recebe input do usuário
-    mov r7,READ @syscall: read
-    mov r0,STDI @standard input
-    ldr r1,=input_buffer
-    mov r2,#4
-    svc #0
-    mov r10,r0 @salva os bits lidos em r10, p preservar entre chamadas
+    MOV R7,READ @syscall: read
+    MOV R0,STDI @standard input
+    LDR R1,=input_buffer
+    MOV R2,#4
+    SVC #0
+    MOV R10,R0 @salva os bits lidos em r10, p preservar entre chamadas
+
+
 
     B menu
+
+mmap_fail:
+    MOV R0,STDO @standard output
+    LDR R1,=mmap_error @ Guarda valor da string
+    LDR R2,=len1
+    MOV R7,WRITE @ Syscall: write
+    SWI 0
+    MOV R7,EXIT @ Syscall: exit
+    SWI 0
