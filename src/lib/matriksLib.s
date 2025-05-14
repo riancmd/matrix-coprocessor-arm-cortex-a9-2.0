@@ -61,29 +61,33 @@ dev_mem:
 input_buffer: 
     .space 4
 menu1: 
-    .string "|*****| matriks |*****|\n" //o mesmo que .asciz
+    .asciz "|*****| matriks |*****|\n" //o mesmo que .asciz
 len1 = 
     .-menu1
 menu2: 
-    .string "(1) Operação\n"
+    .asciz "(1) Operação\n"
 len2 = 
     .-menu2
 menu3:  
-    .string "(2) Sair\n"
+    .asciz "(2) Sair\n"
 len3 = 
     .-menu3
 menu4: 
-    .string "Operações: (1) Soma, (2) Subtração, (3) Multiplicação de matrizes\n"
+    .asciz "Operações: (1) Soma, (2) Subtração, (3) Multiplicação de matrizes\n"
 len4 = 
     .-menu4
 menu5: 
-    .string "(4) Multiplicação por inteiro, (5) Determinante, (6) Transposta, (7) Oposta\n"
+    .asciz "(4) Multiplicação por inteiro, (5) Determinante, (6) Transposta, (7) Oposta\n"
 len5 = 
     .-menu5
 mmap_error:
-    .string "Erro no mapeamento de memória. Finalizando...\n"
+    .asciz "Erro no mapeamento de memória. Finalizando...\n"
 len6 =
     .-mmap_error
+option_error:
+    .asciz "Opção inválida.\n"
+len7 =
+    .-option_error
 
 .global _start
 
@@ -149,7 +153,10 @@ menu:
     CMP R10,SAIR @ Caso seja a opção de sair, encerra o programa
     BEQ exit_program
 
+    CMP R10,OP @ Caso não seja a opção de op, encerra o programa e exibe erro
+    B.NEQ invalida_op
 
+    
 
     B menu
 
@@ -161,6 +168,15 @@ mmap_fail:
     SWI 0
     MOV R7,EXIT @ Syscall: exit
     SWI 0
+
+invalida_op:
+    MOV R0,STDO @ Sinaliza uso de standard output
+    LDR R1,=option_error @ Guarda valor da string do erro
+    LDR R2,=len7
+    MOV R7,WRITE @ Syscall: write
+    SWI 0
+
+    B exit_program
 
 exit_program:
     @ Desmapeia a memória
