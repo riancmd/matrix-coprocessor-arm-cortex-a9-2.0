@@ -34,7 +34,7 @@ _start:
     ldr r1,=buffer
     mov r2,#4
     svc #0
-    mov r3,r0
+    mov r10,r0 @salva os bits lidos em r10, p preservar entre chamadas
 
     @ Termina o programa
     MOV R7,#1  @ Syscall: exit
