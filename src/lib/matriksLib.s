@@ -6,13 +6,36 @@
 @ - PIO4
 @ - PIO5
 
+@ Constantes para o menu
+.equ OP, 1
+.equ SAIR, 2
+
+@ Ops que usam duas matrizes
+.equ SOMA, 0
+.equ SUBTRACAO, 1
+.equ MULT_MATRIZ, 2
+.equ MULT_INT, 3
+
+@ Ops que usam uma matriz
+.equ DETERMINANTE, 4
+.equ TRANSPOSTA, 5
+.equ OPOSTA, 6
+
+@ Tamanhos das matrizes
+.equ TAM0, 0
+.equ TAM1, 1
+.equ TAM2, 2
+.equ TAM3, 3
+
 @ Definição de constantes para as syscalls e stdin/o
 .equ EXIT,  1
 .equ READ,  3
 .equ WRITE, 4
 .equ OPEN,  5
 .equ CLOSE, 6
-.EQU MMAP, 192
+.equ MUNMAP, 91
+.equ MMAP, 192
+
 
 .equ STDI, 0 @ Standard input
 .equ STDO, 1 @ Standard output
@@ -123,6 +146,9 @@ menu:
     SVC #0
     MOV R10,R0 @salva os bits lidos em r10, p preservar entre chamadas
 
+    CMP R10,SAIR @ Caso seja a opção de sair, encerra o programa
+    BEQ exit_program
+
 
 
     B menu
@@ -134,4 +160,21 @@ mmap_fail:
     MOV R7,WRITE @ Syscall: write
     SWI 0
     MOV R7,EXIT @ Syscall: exit
+    SWI 0
+
+exit_program:
+    @ Desmapeia a memória
+    MOV R0,R8
+    MOV R1,#PAGE_SIZE
+    MOV R7,#MUNMAP
+    SWI 0
+
+    @ Fecha /dev/mem
+    MOV R0,R10
+    MOV R7,#CLOSE
+    SWI 0
+
+    @ Encerra o programa
+    MOV R7,EXIT
+    MOV R0,#0
     SWI 0
