@@ -227,9 +227,27 @@ wire [27:0] stm_hw_events;
 // connection of internal logics
 assign stm_hw_events    = {{3{1'b0}},SW, fpga_led_internal, fpga_debounced_buttons};
 
-
+//Instancia do buffer principal conectado aos PIOs
+main_buffer main_buffer(
+	.clk(CLOCK_50),
+	.rst(KEY[0]),
+	.package_data_in(data_in),
+	.buffer_instruction(buffer_instruction),
+	.coprocessor_instruction(coprocessor_instruction),
+	.package_data_out(data_out),
+	.buffer_ready(buffer_ready),
+	.coprocessor_ready(coprocessor_ready),
+	.overflow(LEDR[0])
+);
 
 soc_system u0 (
+	.data_in_external_conection_export(data_in),
+	.buffer_instruction_in_external_conection_export(buffer_instruction),
+	.coprocessor_instruction_in_external_conection_export(coprocessor_instruction),
+	.data_out_external_conection_export(data_out),
+	.ready_signals_external_connection_export({buffer_ready, coprocessor_ready}),
+
+
     .clk_clk                               ( CLOCK_50           ),      //                            clk.clk
     .reset_reset_n                         ( hps_fpga_reset_n   ),      //                          reset.reset_n
 

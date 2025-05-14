@@ -1,19 +1,13 @@
 //Módulo de controle para leitura, decodificação, execução e escrita de dados
 module control_unit(
 	input [199:0] matrix1, matrix2, //Dados das 2 matrizes
-	input [5:0] instruction, //Instrução requisitada (3 bits de op_code e 2 do tamanho da matriz)
+	input [4:0] instruction, //Instrução requisitada (3 bits de op_code e 2 do tamanho da matriz)
 	input clk, rst, start, //Sinal de clock, reset e início de uma nova operação
 	output [199:0] matrix_result, //Matriz resultado da operação
 	output reg ready, //Sinal para indicar que o resultado final está pronto
-	output overflow_wire, //Sinal de overflow da operação
-	output [2:0] state_output, //Estado atual
-	output [2:0] op_code_o
-	
-	
+	output overflow_wire //Sinal de overflow da operação
 );
-	
-	assign op_code_o = opcode_reg;
-	
+		
 	//Instância do divisor de clock
 	clk_divider clk_divider(
 		.clk_in(clk),
@@ -22,9 +16,9 @@ module control_unit(
 	);
 	
 	
-	//Instâncias dos buffers para matriz 2x2, 3x3 e 4x4
-	//Servem para organizar os dados desorganizados vindo do buffer principal para cada tamanho
-	buffer_2x2 buffer_2x2(
+	//Instâncias dos buffers para matriz 2x2, 3x3 e 4x4 do HPS-FPGA
+	//Servem para organizar os dados vindo do buffer principal para o formato do coprocessador
+	buffer_2x2_HPStoFGPA buffer_2x2_HPStoFGPA(
 		.matrix1_in(matrix1),
 		.matrix2_in(matrix2),
 		.matrix1_out(matrix1_bff2x2),
@@ -33,7 +27,7 @@ module control_unit(
 	);
 	
 	
-	buffer_3x3 buffer_3x3(
+	buffer_3x3_HPStoFGPA buffer_3x3_HPStoFGPA(
 		.matrix1_in(matrix1),
 		.matrix2_in(matrix2),
 		.matrix1_out(matrix1_bff3x3),
@@ -42,7 +36,7 @@ module control_unit(
 	);
 	
 	
-	buffer_4x4 buffer_4x4(
+	buffer_4x4_HPStoFGPA buffer_4x4_HPStoFGPA(
 		.matrix1_in(matrix1),
 		.matrix2_in(matrix2),
 		.matrix1_out(matrix1_bff4x4),
@@ -50,6 +44,26 @@ module control_unit(
 
 	);
 	
+	
+	//Instâncias dos buffers para matriz 2x2, 3x3 e 4x4 do FPGA-HPS
+	//Servem para organizar os dados vindo do FPGA para o formato lido pelo HPS
+	buffer_2x2_FPGAtoHPS buffer_2x2_FPGAtoHPS(
+		.matrix_result_in(result_reg),
+		.matrix_result_out(result_bff2x2)
+	);
+	
+	
+	buffer_3x3_FPGAtoHPS buffer_3x3_FPGAtoHPS(
+		.matrix_result_in(result_reg),
+		.matrix_result_out(result_bff3x3)
+	);
+	
+	
+	buffer_4x4_FPGAtoHPS buffer_4x4_FPGAtoHPS(
+		.matrix_result_in(result_reg),
+		.matrix_result_out(result_bff4x4)
+	);
+		
 	
 	//Definição dos estados da máquina de estados
 	localparam IDLE = 3'b000;
@@ -60,7 +74,6 @@ module control_unit(
 	localparam CLN = 3'b101;
 
 	reg [2:0] state;
-	assign state_output = state;
 	reg overflow;
 	assign overflow_wire = overflow;
 	
@@ -376,13 +389,33 @@ module control_unit(
 					end
 				end
 				
-				//Estado de sáida dos dados para o buffer
+				//Estado de sáida dos dados para o buffer principal
 				WRITEBACK: begin
-					matrix_result = result_reg;
+					case (msize_reg) //Decodificando o tamanho
+						M2: begin //Matriz 2x2
+							matrix_result = result_bff2x2;
+						end
+						
+						M3: begin //Matriz 3x3
+							matrix_result = result_bff3x3;
+						end
+						
+						M4: begin //Matriz 4x4
+							matrix_result = result_bff4x4;
+						end
+						
+						M5: begin //Matriz 5x5
+							matrix_result = result_reg;
+						end
+						
+						default: begin
+							matrix_result = 0;
+						end
+					endcase
+					
 					ready = 1;
 					operation_active = 0;
 					state = CLN;
-					
 				end
 				
 				CLN: begin

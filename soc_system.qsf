@@ -1008,8 +1008,11 @@ set_global_assignment -name VERILOG_FILE src/modules/multiplier.v
 set_global_assignment -name VERILOG_FILE src/modules/opp_M.v
 set_global_assignment -name VERILOG_FILE src/modules/sub_M.v
 set_global_assignment -name VERILOG_FILE src/modules/trans_M.v
-set_global_assignment -name VERILOG_FILE src/modules/buffer_2x2.v
-set_global_assignment -name VERILOG_FILE src/modules/buffer_3x3.v
-set_global_assignment -name VERILOG_FILE src/modules/buffer_4x4.v
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name VERILOG_FILE src/modules/main_buffer.v
+set_global_assignment -name VERILOG_FILE src/modules/buffer_2x2_HPStoFGPA.v
+set_global_assignment -name VERILOG_FILE src/modules/buffer_3x3_HPStoFGPA.v
+set_global_assignment -name VERILOG_FILE src/modules/buffer_4x4_HPStoFGPA.v
+set_global_assignment -name VERILOG_FILE src/modules/buffer_2x2_FPGAtoHPS.v
+set_global_assignment -name VERILOG_FILE src/modules/buffer_3x3_FPGAtoHPS.v
+set_global_assignment -name VERILOG_FILE src/modules/buffer_4x4_FPGAtoHPS.v
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

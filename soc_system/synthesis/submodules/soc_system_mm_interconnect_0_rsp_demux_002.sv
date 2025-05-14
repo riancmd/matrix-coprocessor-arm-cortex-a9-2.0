@@ -1,4 +1,4 @@
-// (C) 2001-2020 Intel Corporation. All rights reserved.
+// (C) 2001-2023 Intel Corporation. All rights reserved.
 // Your use of Intel Corporation's design tools, logic functions and other 
 // software and tools, and its AMPP partner logic functions, and any output 
 // files from any of the foregoing (including device programming or simulation 
@@ -11,9 +11,9 @@
 // agreement for further details.
 
 
-// $Id: //acds/rel/20.1std/ip/merlin/altera_merlin_demultiplexer/altera_merlin_demultiplexer.sv.terp#1 $
+// $Id: //acds/rel/23.1std/ip/merlin/altera_merlin_demultiplexer/altera_merlin_demultiplexer.sv.terp#1 $
 // $Revision: #1 $
-// $Date: 2019/10/06 $
+// $Date: 2022/10/30 $
 // $Author: psgswbuild $
 
 // -------------------------------------
@@ -28,8 +28,8 @@
 // ------------------------------------------
 // Generation parameters:
 //   output_name:         soc_system_mm_interconnect_0_rsp_demux_002
-//   ST_DATA_W:           127
-//   ST_CHANNEL_W:        5
+//   ST_DATA_W:           131
+//   ST_CHANNEL_W:        9
 //   NUM_OUTPUTS:         1
 //   VALID_WIDTH:         1
 // ------------------------------------------
@@ -46,8 +46,8 @@ module soc_system_mm_interconnect_0_rsp_demux_002
     // Sink
     // -------------------
     input  [1-1      : 0]   sink_valid,
-    input  [127-1    : 0]   sink_data, // ST_DATA_W=127
-    input  [5-1 : 0]   sink_channel, // ST_CHANNEL_W=5
+    input  [131-1    : 0]   sink_data, // ST_DATA_W=131
+    input  [9-1 : 0]   sink_channel, // ST_CHANNEL_W=9
     input                         sink_startofpacket,
     input                         sink_endofpacket,
     output                        sink_ready,
@@ -56,8 +56,8 @@ module soc_system_mm_interconnect_0_rsp_demux_002
     // Sources 
     // -------------------
     output reg                      src0_valid,
-    output reg [127-1    : 0] src0_data, // ST_DATA_W=127
-    output reg [5-1 : 0] src0_channel, // ST_CHANNEL_W=5
+    output reg [131-1    : 0] src0_data, // ST_DATA_W=131
+    output reg [9-1 : 0] src0_channel, // ST_CHANNEL_W=9
     output reg                      src0_startofpacket,
     output reg                      src0_endofpacket,
     input                           src0_ready,
@@ -94,7 +94,7 @@ module soc_system_mm_interconnect_0_rsp_demux_002
     // -------------------
     assign ready_vector[0] = src0_ready;
 
-    assign sink_ready = |(sink_channel & {{4{1'b0}},{ready_vector[NUM_OUTPUTS - 1 : 0]}});
+    assign sink_ready = |(sink_channel & {{8{1'b0}},{ready_vector[NUM_OUTPUTS - 1 : 0]}});
 
 endmodule
 

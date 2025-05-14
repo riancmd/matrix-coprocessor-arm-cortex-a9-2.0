@@ -8,6 +8,8 @@
    <name preferredWidth="253" />
   </columns>
  </systemtable>
- <library expandedCategories="Project,Library" />
- <window width="1938" height="1048" x="-9" y="-9" />
+ <library
+   expandedCategories="Library/Processors and Peripherals/Peripherals,Library/Interface Protocols,Project,Library/Processors and Peripherals,Library,Library/Interface Protocols/PCI Express/QSYS Example Designs,Library/Interface Protocols/PCI Express" />
+ <window width="1854" height="1011" x="66" y="69" />
+ <hdlexample language="VERILOG" />
 </preferences>

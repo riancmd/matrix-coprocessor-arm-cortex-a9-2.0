@@ -77,7 +77,12 @@ module soc_system (
 	memory_mem_odt,
 	memory_mem_dm,
 	memory_oct_rzqin,
-	reset_reset_n);	
+	reset_reset_n,
+	data_in_external_conection_export,
+	buffer_instruction_in_external_conection_export,
+	coprocessor_instruction_in_external_conection_export,
+	data_out_external_conection_export,
+	ready_signals_external_connection_export);	
 
 	input		clk_clk;
 	input		hps_0_f2h_cold_reset_req_reset_n;
@@ -157,4 +162,9 @@ module soc_system (
 	output	[3:0]	memory_mem_dm;
 	input		memory_oct_rzqin;
 	input		reset_reset_n;
+	output	[31:0]	data_in_external_conection_export;
+	output	[5:0]	buffer_instruction_in_external_conection_export;
+	output	[5:0]	coprocessor_instruction_in_external_conection_export;
+	input	[31:0]	data_out_external_conection_export;
+	input	[1:0]	ready_signals_external_connection_export;
 endmodule
