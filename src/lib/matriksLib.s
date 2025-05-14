@@ -1,39 +1,48 @@
 .global _start
 
 _start:
-    //Organiza os writes com o valor, tamanho e syscall
-    MOV R0,#1
-    LDR R1,=menu1 //Guarda valor da string
+    @ Exibe informações do menu
+    MOV R0,#1 @standard output
+    LDR R1,=menu1 @ Guarda valor da string
     LDR R2,=len1
-    MOV R7,#4 //Syscall write
+    MOV R7,#4 @ Syscall: write
     SWI 0
 
     LDR R1,=menu2
     LDR R2,=len2
-    MOV R7,#4
+    MOV R7,#4 @ Syscall: write
     SWI 0
 
     LDR R1,=menu3
     LDR R2,=len3
-    MOV R7,#4
+    MOV R7,#4 @ Syscall: write
     SWI 0
 
     LDR R1,=menu4
     LDR R2,=len4
-    MOV R7,#4
+    MOV R7,#4 @ Syscall: write
     SWI 0
 
     LDR R1,=menu5
     LDR R2,=len5
-    MOV R7,#4
+    MOV R7,#4 @ Syscall: write
     SWI 0
 
-    //Termina o programa
-    MOV R7,#1 //Syscall exit
+    @Recebe input do usuário
+    mov r7,#3 @syscall: read
+    mov r0,#0 @standard input
+    ldr r1,=buffer
+    mov r2,#4
+    svc #0
+    mov r3,r0
+
+    @ Termina o programa
+    MOV R7,#1  @ Syscall: exit
     SWI 0
 
     
 .data //Seção de dados
+buffer: .space 4
 menu1: .string "|*****| matriks |*****|\n" //o mesmo que .asciz
 len1 = .-menu1
 menu2: .string "(1) Operação\n"
