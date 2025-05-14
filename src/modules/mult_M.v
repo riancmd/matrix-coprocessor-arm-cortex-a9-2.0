@@ -50,16 +50,6 @@ module mult_M(input signed [199:0] lin, col, // linhas da matriz 1, colunas da m
 		intProd_M intprod23 (lin[39:0],    col[119:80],  rst, n_53, ovf23);  // Elemento (5,3)
 		intProd_M intprod24 (lin[39:0],    col[79:40],   rst, n_54, ovf24);  // Elemento (5,4)
 		intProd_M intprod25 (lin[39:0],    col[39:0],    rst, n_55, ovf25);  // Elemento (5,5)
-
-		always@(*) begin
-		$display("Matriz final: %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
-						  n_11, n_12, n_13, n_14, n_15, 
-						  n_21, n_22, n_23, n_24, n_25,
-						  n_31, n_32, n_33, n_34, n_35,
-						  n_41, n_42, n_43, n_44, n_45,
-						  n_51, n_52, n_53, n_54, n_55);
-		end
-		
 		
 		// sinal de overflow geral (porta OR de todos os overflows individuais)
 		assign ovf = ovf1 || ovf2 || ovf3 || ovf4 || ovf5 || 
@@ -76,11 +66,5 @@ module mult_M(input signed [199:0] lin, col, // linhas da matriz 1, colunas da m
 			$unsigned(n_41), $unsigned(n_42), $unsigned(n_43), $unsigned(n_44), $unsigned(n_45),
 			$unsigned(n_51), $unsigned(n_52), $unsigned(n_53), $unsigned(n_54), $unsigned(n_55)
 		};
-
-
-		always@(*) begin
-			$display("%b", n_out);
-		end
-
 		
 endmodule
