@@ -9,6 +9,7 @@
 void showMenu();
 void clear();
 void menuOperation();
+void printarMatriz();
 
 int main(){
     //Compilar utilizando gcc -finput-charset=UTF-8 antes do output para sair os caracteres
@@ -89,6 +90,16 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
     for(i = 0; i < (size*size); i++){
         printf("matriz[%d][%d]: ", (i/size), (i%size)); // printa a posição do elemento
         scanf("%d", &(matrixA[i]));
+    }
+}
+
+void printarMatriz(int* matriz, int size){
+    int i, count;
+    count = 0;
+
+    for (i = 0; i < (size*size); i){
+        if ((i+1)%size == 0) printf("\n");
+        printf("    %d    ", matriz[i]);
     }
 }
 
