@@ -1,3 +1,7 @@
+/*
+            Para compilar corretamente, é necessário utilizar a seguinte linha no terminal (windows):
+            gcc -finput-charset=UTF-8 main.c resources\icon.o -o meu_programa.exe
+*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
