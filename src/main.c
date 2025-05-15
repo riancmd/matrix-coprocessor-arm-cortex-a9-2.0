@@ -1,6 +1,6 @@
 /*
             Para compilar corretamente, é necessário utilizar a seguinte linha no terminal (windows):
-            gcc -finput-charset=UTF-8 main.c resources\icon.o -o meu_programa.exe
+            gcc -finput-charset=UTF-8 main.c resources\icon.o -o main.exe
 
             LEMBRE: Criar header depois
 */
@@ -26,7 +26,8 @@ void showMenu(){
     option = (char *)malloc(51*sizeof(char));
 
     //Aloca espaço para matrizes
-    int* matrixA, matrixB;
+    int* matrixA;
+    int* matrixB;
     matrixA = (int *)malloc(25*sizeof(int));
     matrixB = (int *)malloc(25*sizeof(int));
     
@@ -110,6 +111,8 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
 void printarMatriz(int* matriz, int size){
     int i, count;
     count = 0;
+
+    printf("Resultante: \n");
 
     for (i = 0; i < (size*size); i++){
         if ((i+1)%size == 0) printf("\n");
