@@ -99,7 +99,7 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
 
     if((*option) == 4){
         printf("\n Digite o número: ");
-        scanf("%d", matrixB[0]);
+        scanf("%d", &(matrixB[0]));
     }else if (qty == 2){
         for(i = 0; i < (size*size); i++){
         printf("matrizB[%d][%d]: ", (i/size), (i%size)); // printa a posição do elemento
