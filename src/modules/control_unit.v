@@ -286,7 +286,7 @@ module control_unit(
 						end
 						
 						MULT_MATRIZ: begin
-							result_reg[199:0] = ;
+							result_reg[199:0] = multMA_result;
 							overflow = multMA_ovf;
 						end
 						
