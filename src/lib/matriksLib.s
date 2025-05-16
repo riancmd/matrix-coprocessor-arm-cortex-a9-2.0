@@ -6,10 +6,6 @@
 @ - PIO4
 @ - PIO5
 
-@ Constantes para o menu
-.equ OP, 1
-.equ SAIR, 2
-
 @ Ops que usam duas matrizes
 .equ SOMA, 0
 .equ SUBTRACAO, 1
@@ -58,36 +54,6 @@
 .data
 dev_mem:
     .asciz "/dev/mem"
-input_buffer: 
-    .space 4
-menu1: 
-    .asciz "|*****| matriks |*****|\n" //o mesmo que .asciz
-len1 = 
-    .-menu1
-menu2: 
-    .asciz "(1) Operação\n"
-len2 = 
-    .-menu2
-menu3:  
-    .asciz "(2) Sair\n"
-len3 = 
-    .-menu3
-menu4: 
-    .asciz "Operações: (1) Soma, (2) Subtração, (3) Multiplicação de matrizes\n"
-len4 = 
-    .-menu4
-menu5: 
-    .asciz "(4) Multiplicação por inteiro, (5) Determinante, (6) Transposta, (7) Oposta\n"
-len5 = 
-    .-menu5
-mmap_error:
-    .asciz "Erro no mapeamento de memória. Finalizando...\n"
-len6 =
-    .-mmap_error
-option_error:
-    .asciz "Opção inválida.\n"
-len7 =
-    .-option_error
 
 .global _start
 
@@ -113,52 +79,6 @@ _start:
     BEQ mmap_fail
     MOV R8, R0 @ Endereço virtual mapeado em r8
     ADD R9, R8, #PIO_INPUT_OFFSET @ r9 = endereço do PIO de entrada
-
-@ Procedimento que exibe o menu
-menu:
-    MOV R0,STDO @ Sinaliza uso de standard output
-    LDR R1,=menu1 @ Guarda valor da string
-    LDR R2,=len1
-    MOV R7,WRITE @ Syscall: write
-    SWI 0
-
-    LDR R1,=menu2
-    LDR R2,=len2
-    MOV R7,WRITE @ Syscall: write
-    SWI 0
-
-    LDR R1,=menu3
-    LDR R2,=len3
-    MOV R7,WRITE @ Syscall: write
-    SWI 0
-
-    LDR R1,=menu4
-    LDR R2,=len4
-    MOV R7,WRITE @ Syscall: write
-    SWI 0
-
-    LDR R1,=menu5
-    LDR R2,=len5
-    MOV R7,WRITE @ Syscall: write
-    SWI 0
-
-    @Recebe input do usuário
-    MOV R7,READ @syscall: read
-    MOV R0,STDI @standard input
-    LDR R1,=input_buffer
-    MOV R2,#4
-    SVC #0
-    MOV R10,R0 @salva os bits lidos em r10, p preservar entre chamadas
-
-    CMP R10,SAIR @ Caso seja a opção de sair, encerra o programa
-    BEQ exit_program
-
-    CMP R10,OP @ Caso não seja a opção de op, encerra o programa e exibe erro
-    B.NEQ invalida_op
-
-    
-
-    B menu
 
 mmap_fail:
     MOV R0,STDO @standard output
