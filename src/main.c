@@ -6,18 +6,21 @@
 */
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <time.h>
 #include "lib\matriksLib.h"
 
 #define storeMatrixA 0b00
 #define storeMatrixB 0b01
+#define loadMatrixResult 0b10
 #define pos1 0b00
+#define pos2 0b000
 #define START 0b1
 
 
 void showMenu();
 void clean();
-void menuOperation(char* option, int* matrixA, int* matrixB);
+void menuOperation(char* option, int* matrixA, int* matrixB, int* result);
 void printarMatriz(int* matriz, int size);
 
 
@@ -36,8 +39,10 @@ void showMenu(){
     //Aloca espaço para matrizes
     int* matrixA;
     int* matrixB;
+    int* result;
     matrixA = (int *)malloc(25*sizeof(int));
     matrixB = (int *)malloc(25*sizeof(int));
+    result = (int *)malloc(25*sizeof(int));
     
     while(1){
         //LEMBRETE: Trocar usleep por nanosleep para usar no Linux
@@ -75,14 +80,14 @@ void showMenu(){
         }
         
         switch (*option){
-            case '1': menuOperation(option, matrixA, matrixB);
+            case '1': menuOperation(option, matrixA, matrixB, result);
             case '2': exit(0);
         }
     }
 
 }
 
-void menuOperation(char* option, int* matrixA, int* matrixB){
+void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
     int qty; // variável guarda se op precisa de 2 ou 1 matriz
     int size;
     int i,j; // iteradores
@@ -146,19 +151,45 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
         }
     }
 
+    int flagOK;
+    flagOK = 0;
+
     // envia os dados com o opcode
     for (i = 0; i < 5; i++){
-        operate_buffer_send(storeMatrixA, pos1, START, matrixA);
+        flagOK = operate_buffer_send(storeMatrixA, pos1, START, matrixA);
     }
     for (i = 0; i < 5; i++){
-        operate_buffer_send(storeMatrixB, pos1, START, matrixB);
+        flagOK = operate_buffer_send(storeMatrixB, pos1, START, matrixB);
     }
 
-    // envia operação
-    calculate_matriz(opcode, size, START);
+    int pos = 0; // posição atual no array
 
-    // recebe a operação
-    for
+    // envia operação
+    if (flagOK){
+        calculate_matriz(opcode, size, START);
+
+        int8_t byte0, byte1, byte2, byte3; // variaveis que recebem os números separados do pacote de 32bits
+        uint32_t packed_data; // variavel que recebe o pacote de 32bits
+
+        // recebe o resultado da operação
+        for (i = 0; i < 5; i++){
+            packed_data = operate_buffer_receive(loadMatrixResult, pos2, START);
+        
+            // Extrai cada byte e converte para int8_t (com extensão de sinal para int)
+            byte0 = (packed_data >> 24) & 0xFF;
+            byte1 = (packed_data >> 16) & 0xFF;
+            byte2 = (packed_data >> 8)  & 0xFF;
+            byte3 = packed_data & 0xFF;
+            
+            // Armazena no array (se ainda houver espaço)
+            if (pos < 25) result[pos++] = byte0;
+            if (pos < 25) result[pos++] = byte1;
+            if (pos < 25) result[pos++] = byte2;
+            if (pos < 25) result[pos++] = byte3;
+        }
+    }
+    
+    printarMatriz(result, size);
 }
 
 void printarMatriz(int* matriz, int size){
