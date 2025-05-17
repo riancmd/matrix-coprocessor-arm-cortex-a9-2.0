@@ -145,12 +145,9 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
         }
     }
 
-    // concatena dados da matriz A
-    
-    
     // envia os dados com o opcode
     operate_buffer_send(opcode, storeMatrixA, pos1, matrixA);
-    operate_buffer_send(opcode, storeMatrixA, pos1, matrixB);
+    operate_buffer_send(opcode, storeMatrixB, pos1, matrixB);
 }
 
 void printarMatriz(int* matriz, int size){
