@@ -12,6 +12,7 @@
 #define storeMatrixA 0b00
 #define storeMatrixB 0b01
 #define pos1 0b00
+#define START 0b1
 
 
 void showMenu();
@@ -146,8 +147,18 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
     }
 
     // envia os dados com o opcode
-    operate_buffer_send(opcode, storeMatrixA, pos1, matrixA);
-    operate_buffer_send(opcode, storeMatrixB, pos1, matrixB);
+    for (i = 0; i < 5; i++){
+        operate_buffer_send(storeMatrixA, pos1, START, matrixA);
+    }
+    for (i = 0; i < 5; i++){
+        operate_buffer_send(storeMatrixB, pos1, START, matrixB);
+    }
+
+    // envia operação
+    calculate_matriz(opcode, size, START);
+
+    // recebe a operação
+    for
 }
 
 void printarMatriz(int* matriz, int size){
