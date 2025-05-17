@@ -47,9 +47,7 @@ input_buffer:
     .space 4
 mmap_error:
     .asciz "Erro no mapeamento de memória. Finalizando...\n"
-len6 =
-    .-mmap_error
-
+len1: .word .-mmap_error
 
 .global _start
 
@@ -58,7 +56,8 @@ _start:
     MOV R1, #2 @ "open for read and write"
     MOV R7, #OPEN
     SWI 0
-
+    MOV R10, R0 @ Salva o File Descriptor
+    
     CMP R0, #0
     BLT mmap_fail @ Caso haja algum erro no mapeamento, encerra o programa
 
@@ -68,23 +67,23 @@ _start:
     MOV R2, #3
     MOV R3, #MAP_SHARED
     MOV R4, R10 @ File descriptor do /dev/mem
-    MOV R5, #FPGA_BRIDGE_BASE @ Endereço físico base
+    MOV R5, #FPGA_BRIDGE_PHYS @ Endereço físico base
     MOV R7, #MMAP
     SWI 0
     CMP R0, #MAP_FAILED
     BEQ mmap_fail
     MOV R8, R0 @ Endereço virtual mapeado em r8
     ADD R9, R8, #PIO_BUFFER_INSTRUCTION_OFFSET @ r9 = Endereço do PIO de instrução do buffer
-    ADD R10, R8, PIO_COPROCESSOR_INSTRUCTION_OFFSET @ r10 = Endereço do PIO de instrução do coprocessador
-    ADD R11, R8, PIO_DATA_OUT_OFFSET @ r11 = Endereço do PIO de dados calculados da FPGA->HPS
+    ADD R10, R8, #PIO_COPROCESSOR_INSTRUCTION_OFFSET @ r10 = Endereço do PIO de instrução do coprocessador
+    ADD R11, R8, #PIO_DATA_OUT_OFFSET @ r11 = Endereço do PIO de dados calculados da FPGA->HPS
 
 mmap_fail:
-    MOV R0,STDO @standard output
+    MOV R0, #STDO @standard output
     LDR R1,=mmap_error @ Guarda valor da string
     LDR R2,=len1
-    MOV R7,WRITE @ Syscall: write
+    MOV R7, #WRITE @ Syscall: write
     SWI 0
-    MOV R7,EXIT @ Syscall: exit
+    MOV R7, #EXIT @ Syscall: exit
     SWI 0
 
 
@@ -101,8 +100,8 @@ exit_program:
     SWI 0
 
     @ Encerra o programa
-    MOV R7,EXIT
-    MOV R0,#0
+    MOV R7, #EXIT
+    MOV R0, #0
     SWI 0
 
 @ Procedimentos de envio de dados
@@ -146,7 +145,7 @@ wait_response_buffer_send:
 .global calculate_matriz
 .type calculate_matriz, %function
 calculate_matriz:
-    PUSH {R4-R6, LR} Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
+    PUSH {R4-R6, LR} @Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
     @ Concatena os argumentos em uma única instrução
     MOV R4, #0
@@ -214,4 +213,4 @@ wait_response_buffer_receive:
     LDR R0, [R11]
     POP {R4-R6, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
-.size operate_buffer_send, .-operate_buffer_send
+.size operate_buffer_receive, .-operate_buffer_receive
