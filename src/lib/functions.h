@@ -8,7 +8,6 @@
 #define pos2 0b000
 #define START 0b1
 
-
 void showMenu();
 void clean();
 void menuOperation(char* option, int* matrixA, int* matrixB, int* result);
