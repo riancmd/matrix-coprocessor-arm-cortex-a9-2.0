@@ -87,7 +87,7 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
     int i,j; // iteradores
     int opcode;
     int matrizConcatenada;
-    int temp[25];
+    int tempM[25];
 
     clean();
     printf("\n\nOperações:\n\n(1) Soma\n(2) Subtração\n(3) Multiplicação de matrizes\n(4) Multiplicação por inteiro\n(5) Determinante\n(6) Transposta\n(7) Oposta\n");
@@ -105,9 +105,23 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
     // recebe matrizes
     for(i = 0; i < (size*size); i++){
         printf("matrizA[%d][%d]: ", (i/size), (i%size)); // printa a posição do elemento
-        scanf("%d", &(matrixA[i]));
+        scanf("%d", &(tempM[i]));
     }
 
+    // passa para matriz A
+    for (i = 0; i < 5; i++) {
+        for (j = 0; j < 5; j++) {
+            if (i < size && j < size) {
+                // copia os valores da matriz original
+                matrixA[i*5 + j] = tempM[i*size + j];
+            } else {
+                // preenche com zeros
+                matrixA[i*5 + j] = 0;
+            }
+        }
+    }
+
+    // recebe o input da matriz B ou de número
     if((*option) == 4){
         printf("\n Digite o número: ");
         scanf("%d", &(matrixB[0]));
@@ -116,13 +130,27 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
         printf("matrizB[%d][%d]: ", (i/size), (i%size)); // printa a posição do elemento
         scanf("%d", &(matrixB[i]));
         }
+
+        // passa para matriz B
+        for (i = 0; i < 5; i++) {
+            for (j = 0; j < 5; j++) {
+                if (i < size && j < size) {
+                    // copia os valores da matriz original
+                    matrixB[i*5 + j] = tempM[i*size + j];
+                } else {
+                    // preenche com zeros
+                    matrixB[i*5 + j] = 0;
+                }
+            }
+        }
     }
 
     // concatena dados da matriz A
-    matrizConcatenada = matrixA[0] | matrixA[1] | matrixA[2] | matrixA[3];
-
+    
+    
     // envia os dados com o opcode
-    operate_buffer_send(opcode, storeMatrixA, pos1, matrizConcatenada);
+    operate_buffer_send(opcode, storeMatrixA, pos1, matrixA);
+    operate_buffer_send(opcode, storeMatrixA, pos1, matrixB);
 }
 
 void printarMatriz(int* matriz, int size){
