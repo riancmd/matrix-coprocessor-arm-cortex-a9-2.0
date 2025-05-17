@@ -1,12 +1,12 @@
-Fitter Status : Successful - Wed Sep 01 16:18:40 2021
-Quartus Prime Version : 20.1.1 Build 720 11/11/2020 SJ Standard Edition
+Fitter Status : Successful - Wed May 14 14:56:20 2025
+Quartus Prime Version : 23.1std.0 Build 991 11/28/2023 SC Lite Edition
 Revision Name : soc_system
 Top-level Entity Name : ghrd_top
 Family : Cyclone V
 Device : 5CSEMA5F31C6
 Timing Models : Final
-Logic utilization (in ALMs) : 2,063 / 32,070 ( 6 % )
-Total registers : 3088
+Logic utilization (in ALMs) : 2,721 / 32,070 ( 8 % )
+Total registers : 3998
 Total pins : 382 / 457 ( 84 % )
 Total virtual pins : 0
 Total block memory bits : 526,336 / 4,065,280 ( 13 % )

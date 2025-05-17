@@ -3,7 +3,7 @@ module control_unit(
 	input [199:0] matrix1, matrix2, //Dados das 2 matrizes
 	input [4:0] instruction, //Instrução requisitada (3 bits de op_code e 2 do tamanho da matriz)
 	input clk, rst, start, //Sinal de clock, reset e início de uma nova operação
-	output [199:0] matrix_result, //Matriz resultado da operação
+	output reg [199:0] matrix_result, //Matriz resultado da operação
 	output reg ready, //Sinal para indicar que o resultado final está pronto
 	output overflow_wire //Sinal de overflow da operação
 );
@@ -258,6 +258,7 @@ module control_unit(
 					end
 					else begin
 						state = IDLE;
+						ready = 1;
 					end
 				end
 				
@@ -378,15 +379,9 @@ module control_unit(
 						default: begin
 							result_reg = 0;
 						end
-						
 					endcase
 					
-					if(counter_det == 0) begin
-						state = WRITEBACK;
-					end
-					else begin
-						counter_det = counter_det + 1;
-					end
+					state = WRITEBACK;
 				end
 				
 				//Estado de sáida dos dados para o buffer principal
@@ -413,13 +408,11 @@ module control_unit(
 						end
 					endcase
 					
-					ready = 1;
 					operation_active = 0;
 					state = CLN;
 				end
 				
 				CLN: begin
-					ready = 0;
 					overflow = 0;
 					msize_reg = 0;
 					opcode_reg = 0;

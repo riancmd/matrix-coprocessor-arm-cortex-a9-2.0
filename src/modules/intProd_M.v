@@ -28,18 +28,20 @@ module intProd_M(input signed [39:0] lin, col, //linha da matriz 1, coluna da ma
 		end
 		
 		else begin //calcula produto interno
+			//debug
+			$display("Produtos: %d, %d, %d, %d, %d", 
+				prod1, prod2, prod3, prod4, prod5);
 			//temp_n recebe valor temporário do prod int
-			temp_n = {{3{prod1[7]}}, prod1} +
-						{{3{prod2[7]}}, prod2} +
-						{{3{prod3[7]}}, prod3} +
-						{{3{prod4[7]}}, prod4} +
-						{{3{prod5[7]}}, prod5};
+			temp_n = $signed(prod1) + $signed(prod2) + $signed(prod3) + 
+                     $signed(prod4) + $signed(prod5);
+			$display("Produto interno: %d", temp_n);
 			
 			//Se houve overflow (maior que 127, menor que -128 ou algum ovf parcial), manda sinal
 			ovf = (temp_n > 127 || temp_n <  -128 || ovfP);
 		end
 
 		n_out = temp_n[7:0]; //Apenas envia bits menos significativos (8bits), independente de overflow
+		$display("Produto interno FINAL: %d", n_out);
 		
 	end
 	
