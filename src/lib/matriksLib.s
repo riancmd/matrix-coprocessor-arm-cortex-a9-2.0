@@ -116,6 +116,25 @@ operate_buffer_send:
     ORR R4, R4, R1, LSL #1 	@ Position[3:1]
     ORR R4, R4, R2		@ Start[0]
 
+    @ R3 contém o endereço do array de inteiros (int*)
+    LDR R12, [R3, #0]    @ Carrega o primeiro inteiro (32 bits)
+    LDR R13, [R3, #4]    @ Carrega o segundo inteiro
+    LDR R14, [R3, #8]    @ Carrega o terceiro inteiro
+    LDR R15, [R3, #12]   @ Carrega o quarto inteiro
+
+    @ Extrai apenas o byte menos significativo (LSB) de cada inteiro
+    AND R12, R12, #0xFF   @ Pega apenas o byte 0 do primeiro int
+    AND R13, R13, #0xFF   @ Pega apenas o byte 0 do segundo int
+    AND R14, R14, #0xFF   @ Pega apenas o byte 0 do terceiro int
+    AND R15, R15, #0xFF   @ Pega apenas o byte 0 do quarto int
+
+    @ Concatena os 4 bytes em R3 (R12=byte0, R13=byte1, R14=byte2, R15=byte3)
+    MOV R3, #0            @ Zera R3
+    ORR R3, R3, R12, LSL #24  @ Coloca byte0 em [31:24]
+    ORR R3, R3, R13, LSL #16  @ Coloca byte1 em [23:16]
+    ORR R3, R3, R14, LSL #8   @ Coloca byte2 em [15:8]
+    ORR R3, R3, R15            @ Coloca byte3 em [7:0]
+
     @ Escreve nos PIOs de dados de entrada e instrução do buffer
     STR R3, [R8]
     STR R4, [R9]
