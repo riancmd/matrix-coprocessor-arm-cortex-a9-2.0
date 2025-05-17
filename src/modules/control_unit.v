@@ -1,28 +1,79 @@
 //Módulo de controle para leitura, decodificação, execução e escrita de dados
 module control_unit(
+	input [199:0] matrix1, matrix2, //Dados das 2 matrizes
+	input [4:0] instruction, //Instrução requisitada (3 bits de op_code e 2 do tamanho da matriz)
 	input clk, rst, start, //Sinal de clock, reset e início de uma nova operação
-	input clk_button, //Sinal de clock vindo do botão para depuração
+	output reg [199:0] matrix_result, //Matriz resultado da operação
 	output reg ready, //Sinal para indicar que o resultado final está pronto
-	output overflow_wire, //Sinal de overflow da operação
-	output [2:0] state_output, //Estado atual
-	output [2:0] op_code_o
-	
-	
+	output overflow_wire //Sinal de overflow da operação
 );
+		
+	//Instância do divisor de clock
+	clk_divider clk_divider(
+		.clk_in(clk),
+		.rst(rst),
+		.clk_out(clk_coprocessor)
+	);
 	
-	assign op_code_o = opcode_reg;
+	
+	//Instâncias dos buffers para matriz 2x2, 3x3 e 4x4 do HPS-FPGA
+	//Servem para organizar os dados vindo do buffer principal para o formato do coprocessador
+	buffer_2x2_HPStoFGPA buffer_2x2_HPStoFGPA(
+		.matrix1_in(matrix1),
+		.matrix2_in(matrix2),
+		.matrix1_out(matrix1_bff2x2),
+		.matrix2_out(matrix2_bff2x2),
+
+	);
+	
+	
+	buffer_3x3_HPStoFGPA buffer_3x3_HPStoFGPA(
+		.matrix1_in(matrix1),
+		.matrix2_in(matrix2),
+		.matrix1_out(matrix1_bff3x3),
+		.matrix2_out(matrix2_bff3x3),
+
+	);
+	
+	
+	buffer_4x4_HPStoFGPA buffer_4x4_HPStoFGPA(
+		.matrix1_in(matrix1),
+		.matrix2_in(matrix2),
+		.matrix1_out(matrix1_bff4x4),
+		.matrix2_out(matrix2_bff4x4),
+
+	);
+	
+	
+	//Instâncias dos buffers para matriz 2x2, 3x3 e 4x4 do FPGA-HPS
+	//Servem para organizar os dados vindo do FPGA para o formato lido pelo HPS
+	buffer_2x2_FPGAtoHPS buffer_2x2_FPGAtoHPS(
+		.matrix_result_in(result_reg),
+		.matrix_result_out(result_bff2x2)
+	);
+	
+	
+	buffer_3x3_FPGAtoHPS buffer_3x3_FPGAtoHPS(
+		.matrix_result_in(result_reg),
+		.matrix_result_out(result_bff3x3)
+	);
+	
+	
+	buffer_4x4_FPGAtoHPS buffer_4x4_FPGAtoHPS(
+		.matrix_result_in(result_reg),
+		.matrix_result_out(result_bff4x4)
+	);
+		
 	
 	//Definição dos estados da máquina de estados
 	localparam IDLE = 3'b000;
-	localparam FETCH1 = 3'b001;
-	localparam FETCH2 = 3'b010;
-	localparam FETCH3_DECODE = 3'b011;
-	localparam EXECUTE = 3'b100;
-	localparam WRITEBACK = 3'b101;
-	localparam CLN = 3'b110;
+	localparam FETCH = 3'b001;
+	localparam DECODE = 3'b010;
+	localparam EXECUTE = 3'b011;
+	localparam WRITEBACK = 3'b100;
+	localparam CLN = 3'b101;
 
 	reg [2:0] state;
-	assign state_output = state;
 	reg overflow;
 	assign overflow_wire = overflow;
 	
@@ -34,29 +85,15 @@ module control_unit(
 	localparam DETERMINANTE = 3'b100;
 	localparam TRANSPOSTA = 3'b101;
 	localparam OPOSTA = 3'b110;
+	
+	//Definição dos códigos para cada tamanho
+	localparam M2 = 2'b00;
+	localparam M3 = 2'b01;
+	localparam M4 = 2'b10;
+	localparam M5 = 2'b11;
 
 	
-	//Instância da ferramenta de memória
-	memory Memory(
-		.clock(clk),
-		.data(result_wire),
-		.address(adrss),
-		.wren(wren),
-		.q(load)
-	);
-
-	//Registradores para endereço e ativação de escrita na memória
-	reg [1:0] adrss;
-	reg wren;
-	reg [1:0] counter;
-	wire [199:0] result_wire;
-	
-	reg [1:0] counter_det;
-	
-	assign result_wire = result_reg;
-	
-	//Fios para capturar os outputs dos módulos instanciados
-	wire [199:0] load; //q output da memória
+	//Fios intermediários correspondentes às saídas dos módulos de operação
 	//Soma
 	wire [39:0] adder_result1, adder_result2, adder_result3, adder_result4, adder_result5; //Resultados da soma
 	wire adder_ovf1, adder_ovf2, adder_ovf3, adder_ovf4, adder_ovf5; //Overflow da soma
@@ -67,20 +104,6 @@ module control_unit(
 	
 	//Multiplicação entre matrizes
 	wire [199:0] multMA_result; //Resultado da multiplicação entre matrizes
-	
-	//Fios necessários para concatenacao
-	/*wire [31:0] multMA_slice1, multMA_slice2, multMA_slice3, multMA_slice4, multMA_slice5,
-	multMA_slice6, multMA_slice7, multMA_slice8, multMA_slice9;
-	assign multMA_slice1 = multMA_result1;
-	assign multMA_slice2 = multMA_result2;
-	assign multMA_slice3 = multMA_result3;
-	assign multMA_slice4 = multMA_result4;
-	assign multMA_slice5 = multMA_result5;
-	assign multMA_slice6 = multMA_result6;
-	assign multMA_slice7 = multMA_result7;
-	assign multMA_slice8 = multMA_result8;
-	assign multMA_slice9 = multMA_result9;*/
-	
 	wire multMA_ovf; //Overflow da multiplicação entre matrizes
 	
 	//Multiplicação por inteiro
@@ -114,6 +137,9 @@ module control_unit(
 	//Colunas temporárias da multiplicaçao entre matrizes
 	reg [39:0] m2_c0, m2_c1, m2_c2, m2_c3, m2_c4; //Primeira coluna até a última nessa ordem
 	
+	
+	
+	//Módulos responsáveis por operar os dados
 	//Módulos de soma para cada linha
 	add_M adderL1(matrix1_reg[199:160], matrix2_reg[199:160], rst, adder_result1, adder_ovf1);
 	add_M adderL2(matrix1_reg[159:120], matrix2_reg[159:120], rst, adder_result2, adder_ovf2);
@@ -130,7 +156,7 @@ module control_unit(
 	
 	//Módulos de multiplicação entre matrizes para cada 2 linhas e 2 colunas 
 	//Insere a matriz A inteira como input e a matriz B organizada em colunas
-	mult_M multi_MA(matrix1_reg[199:0], {m2_c0, m2_c1, m2_c2, m2_c3, m2_c4}, rst, multMA_result, multMA_ovf)
+	mult_M multi_MA(matrix1_reg[199:0], {m2_c0, m2_c1, m2_c2, m2_c3, m2_c4}, rst, multMA_result, multMA_ovf);
 	
 	//Módulos de multiplicação por inteiro para cada linha
 	mult_MI multi_MIL1(matrix1_reg[199:160], matrix2_reg[7:0], rst, multMI_result1, multMI_ovf1);
@@ -200,6 +226,8 @@ module control_unit(
 		m2_c4 = {matrix2_reg[167:160], matrix2_reg[127:120], matrix2_reg[87:80], matrix2_reg[47:40], matrix2_reg[7:0]};
 	end
 	
+	
+	
 	//Registradores intermediários
 	reg [1:0] msize_reg;
 	reg [2:0] opcode_reg;
@@ -207,7 +235,7 @@ module control_unit(
 	reg [199:0] result_reg;
 	reg operation_active;
 
-	always @(posedge clk_button or posedge rst) begin
+	always @(posedge clk_coprocessor or posedge rst) begin
 		if (rst) begin
 			state = IDLE;
 			msize_reg = 0;
@@ -217,50 +245,59 @@ module control_unit(
 			result_reg = 0;
 			overflow = 0;
 			ready = 0;
-			adrss = 0;
-			wren = 0;
 			operation_active = 0;
-			counter = 0;
-			counter_det = 0;
-			
 		end 
 		else begin
 			case (state)
-				//Estado inicial IDLE para receber trocar o endereço antes do FETCH
+				//Estado inicial IDLE, sendo um estado de espera para uma nova operação
 				IDLE: begin
-					adrss = 2'b00;
 					if (start && !operation_active) begin
 						operation_active = 1;
-						wren = 0;
 						ready = 0;
-						state = FETCH1;
-						counter = 0;
-						counter_det = 0;
+						state = FETCH;
 					end
 					else begin
 						state = IDLE;
+						ready = 1;
 					end
 				end
 				
-				//Estado FETCH inicial para receber as intruções
-				FETCH1: begin
-					msize_reg = load[7:0];
-					opcode_reg = load[15:8];
-					adrss <= 2'b01;
-					state = FETCH2;
+				//Estado FETCH para receber as intruções e os dados do buffer
+				FETCH: begin
+					msize_reg = instruction[1:0];
+					opcode_reg = instruction[4:2];
+					state = DECODE;
 				end
 				
-				//Estado FETCH para receber matriz 1
-				FETCH2: begin
-					matrix1_reg = load[199:0];
-					adrss <= 2'b10;
-					state = FETCH3_DECODE;
-				end
-				
-				//Estado FETCH para receber matriz 2 com a decodificação
-				FETCH3_DECODE: begin
-					matrix2_reg = load[199:0];
-					adrss <= 2'b11;
+				//Estado de decodificação do buffer
+				DECODE: begin
+					case (msize_reg) //Decodificando o tamanho
+						M2: begin //Matriz 2x2
+							matrix1_reg = matrix1_bff2x2;
+							matrix2_reg = matrix2_bff2x2;
+						end
+						
+						M3: begin //Matriz 3x3
+							matrix1_reg = matrix1_bff3x3;
+							matrix2_reg = matrix2_bff3x3;
+						end
+						
+						M4: begin //Matriz 4x4
+							matrix1_reg = matrix1_bff4x4;
+							matrix2_reg = matrix2_bff4x4;
+						end
+						
+						M5: begin //Matriz 5x5
+							matrix1_reg = matrix1;
+							matrix2_reg = matrix2;
+						end
+						
+						default: begin
+							matrix1_reg = 0;
+							matrix2_reg = 0;
+						end
+					endcase
+					
 					state = EXECUTE;
 				end
 				
@@ -342,36 +379,42 @@ module control_unit(
 						default: begin
 							result_reg = 0;
 						end
-						
 					endcase
 					
-					if(counter_det == 0) begin
-						state = WRITEBACK;
-					end
-					else begin
-						counter_det = counter_det + 1;
-					end
+					state = WRITEBACK;
 				end
 				
-				//Estado de escrita do resultado na memória
+				//Estado de sáida dos dados para o buffer principal
 				WRITEBACK: begin
-					wren = 1;
-					counter = counter + 1;
-					if (counter == 3) begin
-						operation_active = 0;
-						ready = 1;
-						state = CLN;
-						wren = 0;
-					end
-					else begin
-						state = WRITEBACK;
-					end
+					case (msize_reg) //Decodificando o tamanho
+						M2: begin //Matriz 2x2
+							matrix_result = result_bff2x2;
+						end
+						
+						M3: begin //Matriz 3x3
+							matrix_result = result_bff3x3;
+						end
+						
+						M4: begin //Matriz 4x4
+							matrix_result = result_bff4x4;
+						end
+						
+						M5: begin //Matriz 5x5
+							matrix_result = result_reg;
+						end
+						
+						default: begin
+							matrix_result = 0;
+						end
+					endcase
+					
+					operation_active = 0;
+					state = CLN;
 				end
 				
 				CLN: begin
-					adrss = 0;
-					ready = 0;
 					overflow = 0;
+					msize_reg = 0;
 					opcode_reg = 0;
 					result_reg = 0;
 					matrix1_reg = 0;
@@ -382,11 +425,8 @@ module control_unit(
 				default: begin
 					if (start && !operation_active) begin
 						operation_active = 1;
-						adrss = 0;
-						wren = 0;
 						ready = 0;
-						state = FETCH1;
-						counter = 0;
+						state = FETCH;
 					end
 					else begin
 						state = IDLE;
