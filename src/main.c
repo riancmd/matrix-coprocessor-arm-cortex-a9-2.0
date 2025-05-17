@@ -7,11 +7,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include "lib\matriksLib.h"
+
+#define storeMatrixA 0b00
+#define storeMatrixB 0b01
+#define pos1 0b00
+
 
 void showMenu();
 void clean();
 void menuOperation(char* option, int* matrixA, int* matrixB);
 void printarMatriz(int* matriz, int size);
+
 
 int main(){
     //Compilar utilizando gcc -finput-charset=UTF-8 antes do output para sair os caracteres
@@ -78,6 +85,9 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
     int qty; // variável guarda se op precisa de 2 ou 1 matriz
     int size;
     int i,j; // iteradores
+    int opcode;
+    int matrizConcatenada;
+    int temp[25];
 
     clean();
     printf("\n\nOperações:\n\n(1) Soma\n(2) Subtração\n(3) Multiplicação de matrizes\n(4) Multiplicação por inteiro\n(5) Determinante\n(6) Transposta\n(7) Oposta\n");
@@ -85,6 +95,7 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
     scanf("%s", option);
 
     qty = ((*option) > 4) ? 1 : 2; // verifica qtd de matrizes
+    opcode = (*option);
 
     printf("\nQual o tamanho da matriz?: ");
     scanf("%d", &size);
@@ -106,6 +117,12 @@ void menuOperation(char* option, int* matrixA, int* matrixB){
         scanf("%d", &(matrixB[i]));
         }
     }
+
+    // concatena dados da matriz A
+    matrizConcatenada = matrixA[0] | matrixA[1] | matrixA[2] | matrixA[3];
+
+    // envia os dados com o opcode
+    operate_buffer_send(opcode, storeMatrixA, pos1, matrizConcatenada);
 }
 
 void printarMatriz(int* matriz, int size){

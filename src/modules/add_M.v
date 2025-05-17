@@ -11,7 +11,7 @@ module add_M(input signed [39:0] m1, m2, //linhas da matriz 1 e 2
 			ovf = 1'b0; 
 			temp_m = 45'b0;			
 		end
-		else begin //nõ 
+		else begin //nõ
 			temp_m[44:36] = {m1[39], m1[39:32]} + {m2[39], m2[39:32]}; //primeira soma
 			temp_m[35:27] = {m1[31], m1[31:24]} + {m2[31], m2[31:24]}; //segunda soma
 			temp_m[26:18] = {m1[23], m1[23:16]} + {m2[23], m2[23:16]}; //terceira soma
