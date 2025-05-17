@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
-#include "lib\matriksLib.h"
-#include "lib\functions.h"
+#include "lib/matriksLib.h"
+#include "lib/functions.h"
 
 
 int main(){

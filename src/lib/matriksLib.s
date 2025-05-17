@@ -51,7 +51,7 @@ len1: .word .-mmap_error
 
 .global _start
 
-_start:
+_start: //trocar o start
     LDR R0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
     MOV R1, #2 @ "open for read and write"
     MOV R7, #OPEN
@@ -67,7 +67,7 @@ _start:
     MOV R2, #3
     MOV R3, #MAP_SHARED
     MOV R4, R10 @ File descriptor do /dev/mem
-    MOV R5, #FPGA_BRIDGE_PHYS @ Endereço físico base
+    LDR R5,=FPGA_BRIDGE_PHYS @ Endereço físico base
     MOV R7, #MMAP
     SWI 0
     CMP R0, #MAP_FAILED

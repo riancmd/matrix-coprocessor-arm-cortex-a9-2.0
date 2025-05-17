@@ -58,7 +58,6 @@ void showMenu(){
             case '2': exit(0);
         }
     }
-
 }
 
 void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
