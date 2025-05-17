@@ -1,5 +1,6 @@
 #ifndef matrikslib_h
 #define matrikslib_h
+
 #include <stdint.h>
 
 int operate_buffer_send(int opcode, int position, int start, int* data);
