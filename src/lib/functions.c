@@ -8,7 +8,7 @@
 void showMenu(){
     //Aloca espaço para opcao
     char* option;
-    option = (char *)malloc(51*sizeof(char));
+    option = (char *)malloc(sizeof(char));
 
     //Aloca espaço para matrizes
     int* matrixA;
