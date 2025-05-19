@@ -53,6 +53,10 @@ void showMenu(){
                     menuOperation(option, matrixA, matrixB, result);
                     break;            
             case '2': 
+                    free(matrixA);
+                    free(matrixB);
+                    free(result);
+                    free(option);
                     exit(0);
                     break;
             default: 
