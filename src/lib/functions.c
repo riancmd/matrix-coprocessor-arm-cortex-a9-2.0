@@ -46,16 +46,19 @@ void showMenu(){
         printf("\n");
         printf("\nDigite uma opção: ");
         scanf("%s", option);
-        
-        if (option == NULL || ((*option) != '2' && (*option) != '1')){
-            printf("\n Opção inválida.\n");
-            clean();
-            continue;
+            
         }
         
         switch (*option){
-            case '1': menuOperation(option, matrixA, matrixB, result);
-            case '2': exit(0);
+            case '1': 
+                    menuOperation(option, matrixA, matrixB, result);
+                    break;            
+            case '2': 
+                    exit(0);
+                    break;
+            default: 
+                    printf("\n Opção inválida.\n");
+                    clean();
         }
     }
 }

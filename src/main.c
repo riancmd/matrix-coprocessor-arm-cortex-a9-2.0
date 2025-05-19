@@ -12,7 +12,7 @@
 
 int main(){
     //Compilar utilizando gcc -finput-charset=UTF-8 antes do output para sair os caracteres
-    SetConsoleOutputCP(65001);  // Força a saída como UTF-8
+    SetConsoleOutputCP(65001);  // Força a saída como UTF-8 - REMOVER ISSO POIS EH DO WINDOWS
     showMenu();
     return 0;
 }
