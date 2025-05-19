@@ -44,7 +44,7 @@ void showMenu(){
         printf("\n(2) - Sair");
         printf("\n");
         printf("\nDigite uma opção: ");
-        scanf("%s", option);
+        scanf("%c", option);
             
         
         switch (*option){
@@ -76,7 +76,7 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
     clean();
     printf("\n\nOperações:\n\n(1) Soma\n(2) Subtração\n(3) Multiplicação de matrizes\n(4) Multiplicação por inteiro\n(5) Determinante\n(6) Transposta\n(7) Oposta\n");
     printf("\nDigite uma opção: ");
-    scanf("%s", option);
+    scanf("%c", option);
 
     qty = ((*option) > 4) ? 1 : 2; // verifica qtd de matrizes
     opcode = (*option);
@@ -168,17 +168,20 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
     }
     
     printarMatriz(result, size);
+
+    printf("\nDeseja continuar?: ");
+    scanf("%c", option);
 }
 
-void printarMatriz(int* matriz, int size){
+void printarMatriz(int* matriz, int size){ //Por enquanto, printa a matriz como sendo 5x5 independente do tamanho
     int i, count;
     count = 0;
 
-    printf("Resultante: \n");
+    printf("\n\nResultante: \n");
 
-    for (i = 0; i < (size*size); i++){
-        if ((i+1)%size == 0) printf("\n");
+    for (i = 0; i < (25); i++){
         printf("    %3d    ", matriz[i]);
+        if ((i+1)%5 == 0) printf("\n");
     }
 
     printf("\n");
