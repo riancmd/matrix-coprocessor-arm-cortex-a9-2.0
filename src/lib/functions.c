@@ -47,7 +47,6 @@ void showMenu(){
         printf("\nDigite uma opção: ");
         scanf("%s", option);
             
-        }
         
         switch (*option){
             case '1': 
@@ -110,7 +109,7 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
     }else if (qty == 2){
         for(i = 0; i < (size*size); i++){
         printf("matrizB[%d][%d]: ", (i/size), (i%size)); // printa a posição do elemento
-        scanf("%d", &(matrixB[i]));
+        scanf("%d", &(tempM[i]));
         }
 
         // passa para matriz B
