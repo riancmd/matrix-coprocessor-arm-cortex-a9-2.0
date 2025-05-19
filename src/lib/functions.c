@@ -19,7 +19,6 @@ void showMenu(){
     result = (int *)malloc(25*sizeof(int));
     
     while(1){
-        //LEMBRETE: Trocar usleep por nanosleep para usar no Linux
         printf("                ___  ___   __  __         _          _  _           ___  ___\n");
         usleep(250000);
         printf("               |  _||  _| |  \\/  |       | |        (_)| |         |_  ||_  |\n");
