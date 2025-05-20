@@ -43,15 +43,19 @@
 .data
 dev_mem:
     .asciz "/dev/mem"
-input_buffer: 
-    .space 4
+axi_lw_adrss: 
+    .word 0
 mmap_error:
     .asciz "Erro no mapeamento de memória. Finalizando...\n"
 len1: .word .-mmap_error
 
-.global _start
 
-_start: //trocar o start
+@ Procedimento de Mapeamento dos endereços virtuais dos PIOs
+.global start_program
+.type start_program, %function
+start_program:
+    PUSH {R1-R10, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
+
     LDR R0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
     MOV R1, #2 @ "open for read and write"
     MOV R7, #OPEN
@@ -63,7 +67,7 @@ _start: //trocar o start
 
     @ Mapeamento da memória
     MOV R0, #0 @ Kernel escolhe qual endereço utilizar
-    MOV R1, #PAGE_SIZE @ Tamanho do mapeamento = 4096b
+    LDR R1, =PAGE_SIZE @ Tamanho do mapeamento = 4096b
     MOV R2, #3
     MOV R3, #MAP_SHARED
     MOV R4, R10 @ File descriptor do /dev/mem
@@ -72,10 +76,12 @@ _start: //trocar o start
     SWI 0
     CMP R0, #MAP_FAILED
     BEQ mmap_fail
-    MOV R8, R0 @ Endereço virtual mapeado em r8
-    ADD R9, R8, #PIO_BUFFER_INSTRUCTION_OFFSET @ r9 = Endereço do PIO de instrução do buffer
-    ADD R10, R8, #PIO_COPROCESSOR_INSTRUCTION_OFFSET @ r10 = Endereço do PIO de instrução do coprocessador
-    ADD R11, R8, #PIO_DATA_OUT_OFFSET @ r11 = Endereço do PIO de dados calculados da FPGA->HPS
+    LDR R8, =axi_lw_adrss
+    STR R0, [R8] @ Endereço virtual mapeado na variàvel
+       
+    POP {R4-R10, LR} @ Restaura registradores e retorna para o antigo LR
+    BX LR
+.size start_program, .-start_program
 
 mmap_fail:
     MOV R0, #STDO @standard output
@@ -87,6 +93,9 @@ mmap_fail:
     SWI 0
 
 
+@ Procedimento para finalizar o programa
+.global exit_program
+.type exit_program, %function
 exit_program:
     @ Desmapeia a memória
     MOV R0,R8
@@ -108,7 +117,7 @@ exit_program:
 .global operate_buffer_send
 .type operate_buffer_send, %function
 operate_buffer_send:
-    PUSH {R4-R6, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
+    PUSH {R4-R8, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
     @ Concatena os argumentos em uma única instrução
     MOV R4, #0
@@ -117,27 +126,27 @@ operate_buffer_send:
     ORR R4, R4, R2		@ Start[0]
 
     @ R3 contém o endereço do array de inteiros (int*)
-    LDR R12, [R3, #0]    @ Carrega o primeiro inteiro (32 bits)
-    LDR R13, [R3, #4]    @ Carrega o segundo inteiro
-    LDR R14, [R3, #8]    @ Carrega o terceiro inteiro
-    LDR R15, [R3, #12]   @ Carrega o quarto inteiro
+    LDR R5, [R3, #0]    @ Carrega o primeiro inteiro (32 bits)
+    LDR R6, [R3, #4]    @ Carrega o segundo inteiro
+    LDR R7, [R3, #8]    @ Carrega o terceiro inteiro
+    LDR R0, [R3, #12]   @ Carrega o quarto inteiro
 
     @ Extrai apenas o byte menos significativo (LSB) de cada inteiro
-    AND R12, R12, #0xFF   @ Pega apenas o byte 0 do primeiro int
-    AND R13, R13, #0xFF   @ Pega apenas o byte 0 do segundo int
-    AND R14, R14, #0xFF   @ Pega apenas o byte 0 do terceiro int
-    AND R15, R15, #0xFF   @ Pega apenas o byte 0 do quarto int
+    AND R5, R5, #0xFF   @ Pega apenas o byte 0 do primeiro int
+    AND R6, R6, #0xFF   @ Pega apenas o byte 0 do segundo int
+    AND R7, R7, #0xFF   @ Pega apenas o byte 0 do terceiro int
+    AND R0, R0, #0xFF   @ Pega apenas o byte 0 do quarto int
 
-    @ Concatena os 4 bytes em R3 (R12=byte0, R13=byte1, R14=byte2, R15=byte3)
+    @ Concatena os 4 bytes em R3 (R5=byte0, R6=byte1, R7=byte2, R0=byte3)
     MOV R3, #0            @ Zera R3
-    ORR R3, R3, R12, LSL #24  @ Coloca byte0 em [31:24]
-    ORR R3, R3, R13, LSL #16  @ Coloca byte1 em [23:16]
-    ORR R3, R3, R14, LSL #8   @ Coloca byte2 em [15:8]
-    ORR R3, R3, R15            @ Coloca byte3 em [7:0]
+    ORR R3, R3, R5, LSL #24  @ Coloca byte0 em [31:24]
+    ORR R3, R3, R6, LSL #16  @ Coloca byte1 em [23:16]
+    ORR R3, R3, R7, LSL #8   @ Coloca byte2 em [15:8]
+    ORR R3, R3, R0            @ Coloca byte3 em [7:0]
 
     @ Escreve nos PIOs de dados de entrada e instrução do buffer
     STR R3, [R8]
-    STR R4, [R9]
+    STR R4, [R8, #PIO_BUFFER_INSTRUCTION_OFFSET]
 
     @ Delay antes de zerar o sinal de start da instrução
     MOV R5, #DELAY_LOOPS
@@ -148,16 +157,16 @@ delay_loop_buffer_send:
 
     @ Zera o start
     BIC R4, R4, #1
-    STR R4, [R9]
+    STR R4, [R8, #PIO_BUFFER_INSTRUCTION_OFFSET]
 
     @ Aguarda a resposta do buffer
 wait_response_buffer_send:
-    LDR R5, [R11, #PIO_READY_SIGNALS_OFFSET]
+    LDR R5, [R8, #PIO_READY_SIGNALS_OFFSET]
     TST R5, #0b10
     BEQ wait_response_buffer_send
 
     MOV R0, #1 @ Retorno de sucesso
-    POP {R4-R6, LR} @ Restaura registradores e retorna para o antigo LR
+    POP {R4-R8, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
 .size operate_buffer_send, .-operate_buffer_send
 
@@ -165,7 +174,7 @@ wait_response_buffer_send:
 .global calculate_matriz
 .type calculate_matriz, %function
 calculate_matriz:
-    PUSH {R4-R6, LR} @Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
+    PUSH {R4-R8, LR} @Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
     @ Concatena os argumentos em uma única instrução
     MOV R4, #0
@@ -174,7 +183,7 @@ calculate_matriz:
     ORR R4, R4, R2		@ Start[0]      
 
     @ Escreve no PIO de instrução do coprocessador
-    STR R4, [R10] @ R10 = PIO_COPROCESSOR_INSTRUCTION_OFFSET
+    STR R4, [R8, #PIO_COPROCESSOR_INSTRUCTION_OFFSET]
 
     @Delay antes de zerar o bit de start
     MOV R5, #DELAY_LOOPS
@@ -184,16 +193,16 @@ delay_loop_coprocessor:
 
     @ Zera o start
     BIC R4, R4, #1
-    STR R4, [R10]
+    STR R4, [R8, #PIO_COPROCESSOR_INSTRUCTION_OFFSET]
 
     @ Aguarda resposta do coprocessador
 wait_coprocessor:
-    LDR R5, [R11, #PIO_READY_SIGNALS_OFFSET]
+    LDR R5, [R8, #PIO_READY_SIGNALS_OFFSET]
     TST R5, #0b01 
     BEQ wait_coprocessor
 
     MOV R0, #1 @ Retorno de sucesso
-    POP {R4-R6, LR} @ Restaura registradores e retorna para o antigo LR
+    POP {R4-R8, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
 
 .size calculate_matriz, .-calculate_matriz
@@ -202,7 +211,7 @@ wait_coprocessor:
 .global operate_buffer_receive
 .type operate_buffer_receive, %function
 operate_buffer_receive:
-    PUSH {R4-R6, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
+    PUSH {R4-R8, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
     @ Concatena os argumentos em uma única instrução
     MOV R4, #0
@@ -211,7 +220,7 @@ operate_buffer_receive:
     ORR R4, R4, R2		@ Start[0]
 
     @ Escreve nos PIOs de instrução do buffer
-    STR R4, [R9]
+    STR R4, [R8, #PIO_BUFFER_INSTRUCTION_OFFSET]
 
     @ Delay antes de zerar o sinal de start da instrução
     MOV R5, #DELAY_LOOPS
@@ -221,16 +230,16 @@ delay_loop_buffer_receive:
 
     @ Zera o start
     BIC R4, R4, #1
-    STR R4, [R9]
+    STR R4, [R8, #PIO_BUFFER_INSTRUCTION_OFFSET]
 
     @ Aguarda a resposta do buffer
 wait_response_buffer_receive:
-    LDR R5, [R11, #PIO_READY_SIGNALS_OFFSET]
+    LDR R5, [R8, #PIO_READY_SIGNALS_OFFSET]
     TST R5, #0b10
     BEQ wait_response_buffer_receive
     
     @ Retorna o pacote de 32 bits
-    LDR R0, [R11]
-    POP {R4-R6, LR} @ Restaura registradores e retorna para o antigo LR
+    LDR R0, [R8, #PIO_DATA_OUT_OFFSET]
+    POP {R4-R8, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
 .size operate_buffer_receive, .-operate_buffer_receive

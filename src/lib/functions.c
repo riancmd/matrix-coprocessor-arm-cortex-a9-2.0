@@ -5,6 +5,17 @@
 #include "matriksLib.h"
 #include "functions.h"
 
+/*
+extern void start_program();
+
+extern int operate_buffer_send(int opcode, int position, int start, int* data);
+
+extern int calculate_matriz(int opcode, int size, int start);
+
+extern uint32_t operate_buffer_receive(int opcode, int position, int start);
+
+extern void exit_program();
+*/
 void showMenu(){
     //Aloca espaço para opcao
     char* option;
@@ -49,6 +60,9 @@ void showMenu(){
         
         switch (*option){
             case '1': 
+                    printf("Aqui0");
+                    start_program();
+                    printf("Aqui1");
                     menuOperation(option, matrixA, matrixB, result);
                     break;            
             case '2': 
@@ -71,6 +85,7 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
     int i,j; // iteradores
     int opcode;
     int matrizConcatenada;
+    int* ptr_pos; // Ponteiro para percorrer pelos pacotes de números da matriz
     int tempM[25];
 
     clean();
@@ -133,11 +148,16 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
     flagOK = 0;
 
     // envia os dados com o opcode
-    for (i = 0; i < 5; i++){
-        flagOK = operate_buffer_send(storeMatrixA, pos1, START, matrixA);
+    ptr_pos = matrixA;
+    for (i = 0; i < 7; i++){
+        flagOK = operate_buffer_send(storeMatrixA, i, START, ptr_pos);
+        ptr_pos = ptr_pos + 4;
     }
-    for (i = 0; i < 5; i++){
-        flagOK = operate_buffer_send(storeMatrixB, pos1, START, matrixB);
+
+    ptr_pos = matrixB;
+    for (i = 0; i < 7; i++){
+        flagOK = operate_buffer_send(storeMatrixB, i, START, ptr_pos);
+        ptr_pos = ptr_pos + 4;
     }
 
     int pos = 0; // posição atual no array
@@ -150,8 +170,8 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
         uint32_t packed_data; // variavel que recebe o pacote de 32bits
 
         // recebe o resultado da operação
-        for (i = 0; i < 5; i++){
-            packed_data = operate_buffer_receive(loadMatrixResult, pos2, START);
+        for (i = 0; i < 7; i++){
+            packed_data = operate_buffer_receive(loadMatrixResult, i, START);
         
             // Extrai cada byte e converte para int8_t (com extensão de sinal para int)
             byte0 = (packed_data >> 24) & 0xFF;
