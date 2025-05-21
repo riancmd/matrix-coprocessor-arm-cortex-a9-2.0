@@ -12,8 +12,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <time.h>
-#include "matriksLib.h"
-#include "functions.h"
+#include "lib/matriksLib.h"
+#include "lib/functions.h"
 
 
 int main(){

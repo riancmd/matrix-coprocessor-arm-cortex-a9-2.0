@@ -1,5 +1,5 @@
 compilar:
-	@as -c matriksLib.s -o matriks.o && gcc -c functions.c -o functions.o && gcc -c main.c -o main.o && gcc main.o functions.o matriks.o -o main
+	@as -c lib/matriksLib.s -o lib/matriks.o && gcc -c lib/functions.c -o lib/functions.o && gcc -c main.c -o main.o && gcc main.o lib/functions.o lib/matriks.o -o main
 
 run:
 	@sudo ./main
