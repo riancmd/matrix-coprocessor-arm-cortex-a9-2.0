@@ -39,66 +39,75 @@
 .equ O_SYNC,         0x1000
 .equ MAP_FAILED,     -1
 
-@ Dados
-.data
-dev_mem:
-    .asciz "/dev/mem"
-axi_lw_adrss: 
-    .word 0
-mmap_error:
-    .asciz "Erro no mapeamento de memória. Finalizando...\n"
-len1: .word .-mmap_error
-
-
-@ Procedimento de Mapeamento dos endereços virtuais dos PIOs
 .global start_program
 .type start_program, %function
-start_program:
-    PUSH {R1-R10, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
-    LDR R0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
-    MOV R1, #2 @ "open for read and write"
-    MOV R7, #OPEN
-    SWI 0
-    MOV R10, R0 @ Salva o File Descriptor
+.global exit_program
+.type exit_program, %function
+
+.global operate_buffer_send
+.type operate_buffer_send, %function
+
+.global calculate_matriz
+.type calculate_matriz, %function
+
+.global operate_buffer_receive
+.type operate_buffer_receive, %function
+
+@ Dados
+.section .data
+    dev_mem: .asciz "/dev/mem"
+    axi_lw_adrss: .word 0
+    mmap_error: .asciz "Erro no mapeamento de memória. Finalizando...\n"
+    len1: .word .-mmap_error
+
+@ Procedimento de Mapeamento dos endereços virtuais dos PIOs
+.section .text
+start_program:
+    push {r0-r7, lr} @ Salva os registradores que devem ser preservados e o Registrador de retorno (lr)
+
+    ldr r0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
+    mov r1, #2 @ "open for read and write"
+    mov r7, #OPEN
+    svc #0
+    mov r10, r0 @ Salva o File Descriptor
     
-    CMP R0, #0
-    BLT mmap_fail @ Caso haja algum erro no mapeamento, encerra o programa
+    cmp r0, #0
+    blt mmap_fail @ Caso haja algum erro no mapeamento, encerra o programa
 
     @ Mapeamento da memória
-    MOV R0, #0 @ Kernel escolhe qual endereço utilizar
-    LDR R1, =PAGE_SIZE @ Tamanho do mapeamento = 4096b
-    MOV R2, #3
-    MOV R3, #MAP_SHARED
-    MOV R4, R10 @ File descriptor do /dev/mem
-    LDR R5,=FPGA_BRIDGE_PHYS @ Endereço físico base
-    MOV R7, #MMAP
-    SWI 0
-    CMP R0, #MAP_FAILED
-    BEQ mmap_fail
-    LDR R8, =axi_lw_adrss
-    STR R0, [R8] @ Endereço virtual mapeado na variàvel
+    mov r0, #0 @ Kernel escolhe qual endereço utilizar
+    ldr r1, =PAGE_SIZE @ Tamanho do mapeamento = 4096b
+    mov r2, #3
+    mov r3, #MAP_SHARED
+    mov r4, r10 @ File descriptor do /dev/mem
+    ldr r5,=FPGA_BRIDGE_PHYS @ Endereço físico base
+    mov r7, #MMAP
+    svc #0
+
+    cmp r0, #MAP_FAILED
+    beq mmap_fail
+    ldr r1, =axi_lw_adrss
+    STR r0, [r1] @ Endereço virtual mapeado colocado na variàvel
        
-    POP {R4-R10, LR} @ Restaura registradores e retorna para o antigo LR
-    BX LR
-.size start_program, .-start_program
+    pop {r0-r7, lr} @ Restaura registradores e retorna para o antigo lr
+    bx lr
 
 mmap_fail:
-    MOV R0, #STDO @standard output
-    LDR R1,=mmap_error @ Guarda valor da string
-    LDR R2,=len1
-    MOV R7, #WRITE @ Syscall: write
-    SWI 0
-    MOV R7, #EXIT @ Syscall: exit
-    SWI 0
+    mov r0, #STDO @standard output
+    ldr r1,=mmap_error @ Guarda valor da string
+    ldr r2,=len1
+    mov r7, #WRITE @ Syscall: write
+    svc #0
+    mov r7, #EXIT @ Syscall: exit
+    svc #0
 
 
 @ Procedimento para finalizar o programa
-.global exit_program
-.type exit_program, %function
 exit_program:
     @ Desmapeia a memória
-    MOV R0,R8
+    LDR R0, =axi_lw_adrss
+    LDR R0, [R0]
     MOV R1,#PAGE_SIZE
     MOV R7,#MUNMAP
     SWI 0
@@ -114,10 +123,8 @@ exit_program:
     SWI 0
 
 @ Procedimentos de envio de dados
-.global operate_buffer_send
-.type operate_buffer_send, %function
 operate_buffer_send:
-    PUSH {R4-R8, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
+    PUSH {R0-R10, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
     @ Concatena os argumentos em uma única instrução
     MOV R4, #0
@@ -145,6 +152,8 @@ operate_buffer_send:
     ORR R3, R3, R0            @ Coloca byte3 em [7:0]
 
     @ Escreve nos PIOs de dados de entrada e instrução do buffer
+    LDR R8, =axi_lw_adrss
+    LDR R8, [R8]
     STR R3, [R8]
     STR R4, [R8, #PIO_BUFFER_INSTRUCTION_OFFSET]
 
@@ -166,13 +175,10 @@ wait_response_buffer_send:
     BEQ wait_response_buffer_send
 
     MOV R0, #1 @ Retorno de sucesso
-    POP {R4-R8, LR} @ Restaura registradores e retorna para o antigo LR
+    POP {R0-R10, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
-.size operate_buffer_send, .-operate_buffer_send
 
 @ Procedimento de iniciar operação com matriz
-.global calculate_matriz
-.type calculate_matriz, %function
 calculate_matriz:
     PUSH {R4-R8, LR} @Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
@@ -183,6 +189,8 @@ calculate_matriz:
     ORR R4, R4, R2		@ Start[0]      
 
     @ Escreve no PIO de instrução do coprocessador
+    LDR R8, =axi_lw_adrss
+    LDR R8, [R8]
     STR R4, [R8, #PIO_COPROCESSOR_INSTRUCTION_OFFSET]
 
     @Delay antes de zerar o bit de start
@@ -205,11 +213,8 @@ wait_coprocessor:
     POP {R4-R8, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
 
-.size calculate_matriz, .-calculate_matriz
 
 @ Procedimentos de recebimento de dados
-.global operate_buffer_receive
-.type operate_buffer_receive, %function
 operate_buffer_receive:
     PUSH {R4-R8, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
@@ -220,6 +225,8 @@ operate_buffer_receive:
     ORR R4, R4, R2		@ Start[0]
 
     @ Escreve nos PIOs de instrução do buffer
+    LDR R8, =axi_lw_adrss
+    LDR R8, [R8]
     STR R4, [R8, #PIO_BUFFER_INSTRUCTION_OFFSET]
 
     @ Delay antes de zerar o sinal de start da instrução
@@ -242,4 +249,3 @@ wait_response_buffer_receive:
     LDR R0, [R8, #PIO_DATA_OUT_OFFSET]
     POP {R4-R8, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
-.size operate_buffer_receive, .-operate_buffer_receive

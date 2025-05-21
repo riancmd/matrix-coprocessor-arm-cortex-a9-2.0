@@ -60,10 +60,8 @@ void showMenu(){
         
         switch (*option){
             case '1': 
-                    printf("Aqui0");
                     start_program();
-                    printf("Aqui1");
-                    menuOperation(option, matrixA, matrixB, result);
+                    menuOperation(matrixA, matrixB, result);
                     break;            
             case '2': 
                     free(matrixA);
@@ -79,22 +77,22 @@ void showMenu(){
     }
 }
 
-void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
+void menuOperation(int* matrixA, int* matrixB, int* result){
     int qty; // variável guarda se op precisa de 2 ou 1 matriz
     int size;
+    int option2;
     int i,j; // iteradores
     int opcode;
     int matrizConcatenada;
     int* ptr_pos; // Ponteiro para percorrer pelos pacotes de números da matriz
     int tempM[25];
 
-    clean();
     printf("\n\nOperações:\n\n(1) Soma\n(2) Subtração\n(3) Multiplicação de matrizes\n(4) Multiplicação por inteiro\n(5) Determinante\n(6) Transposta\n(7) Oposta\n");
     printf("\nDigite uma opção: ");
-    scanf("%c", option);
+    scanf("%d", option2);
 
-    qty = ((*option) > 4) ? 1 : 2; // verifica qtd de matrizes
-    opcode = (*option);
+    qty = (option2 > 4) ? 1 : 2; // verifica qtd de matrizes
+    opcode = option2;
 
     printf("\nQual o tamanho da matriz?: ");
     scanf("%d", &size);
@@ -102,13 +100,17 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
     printf("\nDigite a(s) matriz(es) em ordem de M[i,j].\n\n");
 
     // recebe matrizes
+    printf("%d", size);
     for(i = 0; i < (size*size); i++){
         printf("matrizA[%d][%d]: ", (i/size), (i%size)); // printa a posição do elemento
         scanf("%d", &(tempM[i]));
     }
 
+    printf("Enviou todos os elementos.");
+
     // passa para matriz A
     for (i = 0; i < 5; i++) {
+        printf("Loop.");
         for (j = 0; j < 5; j++) {
             if (i < size && j < size) {
                 // copia os valores da matriz original
@@ -120,8 +122,10 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
         }
     }
 
+    printf("Passou todos os elementos.");
+
     // recebe o input da matriz B ou de número
-    if((*option) == 4){
+    if((option2) == 4){
         printf("\n Digite o número: ");
         scanf("%d", &(matrixB[0]));
     }else if (qty == 2){
@@ -189,8 +193,8 @@ void menuOperation(char* option, int* matrixA, int* matrixB, int* result){
     
     printarMatriz(result, size);
 
-    printf("\nDeseja continuar?: ");
-    scanf("%c", option);
+    // printf("\nDeseja continuar?: ");
+    // scanf("%d", option);
 }
 
 void printarMatriz(int* matriz, int size){ //Por enquanto, printa a matriz como sendo 5x5 independente do tamanho

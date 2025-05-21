@@ -8,7 +8,7 @@
 
 void showMenu();
 void clean();
-void menuOperation(char* option, int* matrixA, int* matrixB, int* result);
+void menuOperation(int* matrixA, int* matrixB, int* result);
 void printarMatriz(int* matriz, int size);
 
 #endif
