@@ -64,7 +64,7 @@
 @ Procedimento de Mapeamento dos endereços virtuais dos PIOs
 .section .text
 start_program:
-    push {r0-r7, lr} @ Salva os registradores que devem ser preservados e o Registrador de retorno (lr)
+    push {r1-r10, lr} @ Salva os registradores que devem ser preservados e o Registrador de retorno (lr)
 
     ldr r0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
     mov r1, #2 @ "open for read and write"
@@ -90,7 +90,7 @@ start_program:
     ldr r1, =axi_lw_adrss
     STR r0, [r1] @ Endereço virtual mapeado colocado na variàvel
        
-    pop {r0-r7, lr} @ Restaura registradores e retorna para o antigo lr
+    pop {r1-r10, lr} @ Restaura registradores e retorna para o antigo lr
     bx lr
 
 mmap_fail:
@@ -124,7 +124,7 @@ exit_program:
 
 @ Procedimentos de envio de dados
 operate_buffer_send:
-    PUSH {R0-R10, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
+    PUSH {R1-R8, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
 
     @ Concatena os argumentos em uma única instrução
     MOV R4, #0
@@ -175,7 +175,7 @@ wait_response_buffer_send:
     BEQ wait_response_buffer_send
 
     MOV R0, #1 @ Retorno de sucesso
-    POP {R0-R10, LR} @ Restaura registradores e retorna para o antigo LR
+    POP {R1-R8, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
 
 @ Procedimento de iniciar operação com matriz

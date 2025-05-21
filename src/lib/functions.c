@@ -19,15 +19,15 @@ extern void exit_program();
 void showMenu(){
     //Aloca espaço para opcao
     char* option;
-    option = (char *)malloc(sizeof(char));
+    option = (char *)calloc(1, sizeof(char));
 
     //Aloca espaço para matrizes
     int* matrixA;
     int* matrixB;
     int* result;
-    matrixA = (int *)malloc(25*sizeof(int));
-    matrixB = (int *)malloc(25*sizeof(int));
-    result = (int *)malloc(25*sizeof(int));
+    matrixA = (int *)calloc(25, sizeof(int));
+    matrixB = (int *)calloc(25, sizeof(int));
+    result = (int *)calloc(25, sizeof(int));
     
     while(1){
         printf("                ___  ___   __  __         _          _  _           ___  ___\n");
@@ -64,10 +64,6 @@ void showMenu(){
                     menuOperation(matrixA, matrixB, result);
                     break;            
             case '2': 
-                    free(matrixA);
-                    free(matrixB);
-                    free(result);
-                    free(option);
                     exit(0);
                     break;
             default: 

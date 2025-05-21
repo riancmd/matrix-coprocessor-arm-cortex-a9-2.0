@@ -230,7 +230,7 @@ assign stm_hw_events    = {{3{1'b0}},SW, fpga_led_internal, fpga_debounced_butto
 //Instancia do buffer principal conectado aos PIOs
 main_buffer main_buffer(
 	.clk(CLOCK_50),
-	.rst(KEY[0]),
+	.rst(!KEY[0]),
 	.package_data_in(data_in),
 	.buffer_instruction(buffer_instruction),
 	.coprocessor_instruction(coprocessor_instruction),
