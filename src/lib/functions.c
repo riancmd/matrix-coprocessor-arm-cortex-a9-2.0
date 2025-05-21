@@ -90,6 +90,11 @@ void menuOperation(int* matrixA, int* matrixB, int* result){
     qty = (option2 > 4) ? 1 : 2; // verifica qtd de matrizes
     opcode = option2;
 
+    printf("\nTamanhos: \n");
+    for (i=0;i<4;i++){
+        printf("(%d) Matriz %dx%d \n", (i+2), (i+2), (i+2));
+    }
+
     printf("\nQual o tamanho da matriz?: ");
     scanf("%d", &size);
 
@@ -102,7 +107,7 @@ void menuOperation(int* matrixA, int* matrixB, int* result){
         scanf("%d", &(tempM[i]));
     }
 
-    printf("Enviou todos os elementos.");
+    printf("\nEnviou todos os elementos.\n");
 
     // passa para matriz A
     for (i = 0; i < 5; i++) {
@@ -164,7 +169,7 @@ void menuOperation(int* matrixA, int* matrixB, int* result){
 
     // envia operação
     if (flagOK){
-        calculate_matriz(opcode, size, START);
+        calculate_matriz(opcode, (size-2), START);
 
         int8_t byte0, byte1, byte2, byte3; // variaveis que recebem os números separados do pacote de 32bits
         uint32_t packed_data; // variavel que recebe o pacote de 32bits
