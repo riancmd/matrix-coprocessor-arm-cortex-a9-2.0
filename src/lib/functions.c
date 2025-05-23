@@ -12,9 +12,9 @@ void showMenu(){
     option = (char *)calloc(1, sizeof(char));
 
     // Aloca espaço para matrizes
-    int* matrixA;
-    int* matrixB;
-    int* result;
+    int8_t* matrixA;
+    int8_t* matrixB;
+    int8_t* result;
     matrixA = (int8_t *)calloc(25, sizeof(int8_t));
     matrixB = (int8_t *)calloc(25, sizeof(int8_t));
     result = (int8_t *)calloc(25, sizeof(int8_t));
@@ -77,10 +77,36 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
 
     printf("\n\nOperações:\n\n(1) Soma\n(2) Subtração\n(3) Multiplicação de matrizes\n(4) Multiplicação por inteiro\n(5) Determinante\n(6) Transposta\n(7) Oposta\n");
     printf("\nDigite uma opção: ");
-    scanf("%d", option2);
+    scanf("%d", &option2);
 
     qty = (option2 > 4) ? 1 : 2; // verifica qtd de matrizes
-    opcode = option2;
+    
+    switch (option2){
+        case 1: 
+                opcode = SOM;
+                break;
+        case 2: 
+                opcode = SUB;
+                break;
+        case 3: 
+                opcode = MULM;
+                break;
+        case 4: 
+                opcode = MULI;
+                break;
+        case 5: 
+                opcode = DET;
+                break;
+        case 6: 
+                opcode = TRANS;
+                break;
+        case 7: 
+                opcode = OPP;
+                break;
+        default:
+                printf("Erro de opcode");
+                exit(0);
+    }
 
     // DEFINIR LÓGICA PARA OPCODE = CONSTANTES
 
@@ -148,6 +174,7 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
     flagOK2 = 0;
 
     // envia os dados com o opcode
+    temp_pos = matrixA;
     for (i=0;i<13;i++){
         flagOK1 = operate_buffer_send(storeMatrixA, (size-2), i, temp_pos);
         temp_pos += 2;
@@ -185,15 +212,23 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
     scanf("%d", &option2);
 }
 
-void printarMatriz(uint8_t* matriz, int size){ //Por enquanto, printa a matriz como sendo 5x5 independente do tamanho
-    int i, count;
-    count = 0;
+void printarMatriz(uint8_t* matriz, int size, int opcode){ //Por enquanto, printa a matriz como sendo 5x5 independente do tamanho
+    int i, indice, linha, coluna;
 
     printf("\n\nResultante: \n");
 
-    for (i = 0; i < (25); i++){
-        printf("    %3d    ", matriz[i]);
-        if ((i+1)%5 == 0) printf("\n");
+    if (opcode == 5){ // determinante
+        printf("    %3d    ", matriz[0]);
+    } else{
+        for (linha = 0; linha < size; linha++) {
+            for (coluna = 0; coluna < size; coluna++) {
+                // calcula o índice na matriz 5x5
+                indice = linha * 5 + coluna;
+                printf("    %3d    ", matriz[indice]);
+            }
+            printf("\n"); // Nova linha após cada linha da matriz
+        }
+        
     }
 
     printf("\n");

@@ -1,5 +1,6 @@
 #ifndef functions_h
 #define functions_h
+#include <stdint.h>
 
 // definição das operações load e store
 #define storeMatrixA 0b0111
@@ -22,7 +23,7 @@
 // protótipo das funções
 void showMenu();
 void clean();
-void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result);
-void printarMatriz(uint8_t* matriz, int size);
+void menuOperation(int8_t* matrixA, int8_t* matrixB, int8_t* result);
+void printarMatriz(int8_t* matriz, int size);
 
 #endif
