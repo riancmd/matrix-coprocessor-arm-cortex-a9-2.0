@@ -1,97 +1,49 @@
 //Módulo de controle para leitura, decodificação, execução e escrita de dados
 module control_unit(
-	input [199:0] matrix1, matrix2, //Dados das 2 matrizes
-	input [4:0] instruction, //Instrução requisitada (3 bits de op_code e 2 do tamanho da matriz)
-	input clk, rst, start, //Sinal de clock, reset e início de uma nova operação
-	output reg [199:0] matrix_result, //Matriz resultado da operação
-	output reg ready, //Sinal para indicar que o resultado final está pronto
-	output overflow_wire //Sinal de overflow da operação
-);
-		
-	//Instância do divisor de clock
-	clk_divider clk_divider(
-		.clk_in(clk),
-		.rst(rst),
-		.clk_out(clk_coprocessor)
-	);
-	
-	
-	//Instâncias dos buffers para matriz 2x2, 3x3 e 4x4 do HPS-FPGA
-	//Servem para organizar os dados vindo do buffer principal para o formato do coprocessador
-	buffer_2x2_HPStoFGPA buffer_2x2_HPStoFGPA(
-		.matrix1_in(matrix1),
-		.matrix2_in(matrix2),
-		.matrix1_out(matrix1_bff2x2),
-		.matrix2_out(matrix2_bff2x2),
+	input clk, rst, //Sinais de clock e reset
+	input [31:0] instruction, //Instruçao contendo 2 numeros de 8 bits, opcode, tamanho de matriz, posiçao de armazenamento e sinal de start
+	output wire [31:0] package_data_out, //Pacote de dados de 32 bits do FPGA-HPS
+	output reg ready, //Sinal de termino da operaçao do buffer e da operaçao do coprocessador, respectivamente
+	output overflow_wire //Sinal de overflow
+);	
 
-	);
-	
-	
-	buffer_3x3_HPStoFGPA buffer_3x3_HPStoFGPA(
-		.matrix1_in(matrix1),
-		.matrix2_in(matrix2),
-		.matrix1_out(matrix1_bff3x3),
-		.matrix2_out(matrix2_bff3x3),
-
-	);
-	
-	
-	buffer_4x4_HPStoFGPA buffer_4x4_HPStoFGPA(
-		.matrix1_in(matrix1),
-		.matrix2_in(matrix2),
-		.matrix1_out(matrix1_bff4x4),
-		.matrix2_out(matrix2_bff4x4),
-
-	);
-	
-	
-	//Instâncias dos buffers para matriz 2x2, 3x3 e 4x4 do FPGA-HPS
-	//Servem para organizar os dados vindo do FPGA para o formato lido pelo HPS
-	buffer_2x2_FPGAtoHPS buffer_2x2_FPGAtoHPS(
-		.matrix_result_in(result_reg),
-		.matrix_result_out(result_bff2x2)
-	);
-	
-	
-	buffer_3x3_FPGAtoHPS buffer_3x3_FPGAtoHPS(
-		.matrix_result_in(result_reg),
-		.matrix_result_out(result_bff3x3)
-	);
-	
-	
-	buffer_4x4_FPGAtoHPS buffer_4x4_FPGAtoHPS(
-		.matrix_result_in(result_reg),
-		.matrix_result_out(result_bff4x4)
-	);
-		
-	
 	//Definição dos estados da máquina de estados
 	localparam IDLE = 3'b000;
 	localparam FETCH = 3'b001;
 	localparam DECODE = 3'b010;
 	localparam EXECUTE = 3'b011;
 	localparam WRITEBACK = 3'b100;
-	localparam CLN = 3'b101;
 
 	reg [2:0] state;
 	reg overflow;
 	assign overflow_wire = overflow;
-	
+		
 	//Definição dos códigos de operação
-	localparam SOMA = 3'b000;
-	localparam SUBTRACAO = 3'b001;
-	localparam MULT_MATRIZ = 3'b010;
-	localparam MULT_INT = 3'b011;
-	localparam DETERMINANTE = 3'b100;
-	localparam TRANSPOSTA = 3'b101;
-	localparam OPOSTA = 3'b110;
+	localparam SOMA = 4'b0000;
+	localparam SUBTRACAO = 4'b0001;
+	localparam MULT_MATRIZ = 4'b0010;
+	localparam MULT_INT = 4'b0011;
+	localparam DETERMINANTE = 4'b0100;
+	localparam TRANSPOSTA = 4'b0101;
+	localparam OPOSTA = 4'b0110;
+	localparam STORE_MATRIX1 = 4'b0111;
+	localparam STORE_MATRIX2 = 4'b1000;
+	localparam LOAD_MATRIXR = 4'b1001;
 	
-	//Definição dos códigos para cada tamanho
-	localparam M2 = 2'b00;
-	localparam M3 = 2'b01;
-	localparam M4 = 2'b10;
-	localparam M5 = 2'b11;
-
+	//Definição dos códigos das posições dos registradores de dados
+	localparam OFFSET0 = 4'b0000;
+	localparam OFFSET1 = 4'b0001;
+	localparam OFFSET2 = 4'b0010;
+	localparam OFFSET3 = 4'b0011;
+	localparam OFFSET4 = 4'b0100;
+	localparam OFFSET5 = 4'b0101;
+	localparam OFFSET6 = 4'b0110;
+	localparam OFFSET7 = 4'b0111;
+	localparam OFFSET8 = 4'b1000;
+	localparam OFFSET9 = 4'b1001;
+	localparam OFFSET10 = 4'b1010;
+	localparam OFFSET11 = 4'b1011;
+	localparam OFFSET12 = 4'b1100;
 	
 	//Fios intermediários correspondentes às saídas dos módulos de operação
 	//Soma
@@ -133,11 +85,9 @@ module control_unit(
 	wire [39:0] opp_result1, opp_result2, opp_result3, opp_result4, opp_result5; //Resultados da oposta
 	wire opp_ovf1, opp_ovf2, opp_ovf3, opp_ovf4, opp_ovf5; //Overflow da oposta caso exista elemento igual a -128
 	
-	
 	//Colunas temporárias da multiplicaçao entre matrizes
 	reg [39:0] m2_c0, m2_c1, m2_c2, m2_c3, m2_c4; //Primeira coluna até a última nessa ordem
-	
-	
+		
 	
 	//Módulos responsáveis por operar os dados
 	//Módulos de soma para cada linha
@@ -159,11 +109,11 @@ module control_unit(
 	mult_M multi_MA(matrix1_reg[199:0], {m2_c0, m2_c1, m2_c2, m2_c3, m2_c4}, rst, multMA_result, multMA_ovf);
 	
 	//Módulos de multiplicação por inteiro para cada linha
-	mult_MI multi_MIL1(matrix1_reg[199:160], matrix2_reg[7:0], rst, multMI_result1, multMI_ovf1);
-	mult_MI multi_MIL2(matrix1_reg[159:120], matrix2_reg[7:0], rst, multMI_result2, multMI_ovf2);
-	mult_MI multi_MIL3(matrix1_reg[119:80], matrix2_reg[7:0], rst, multMI_result3, multMI_ovf3);
-	mult_MI multi_MIL4(matrix1_reg[79:40], matrix2_reg[7:0], rst, multMI_result4, multMI_ovf4);
-	mult_MI multi_MIL5(matrix1_reg[39:0], matrix2_reg[7:0], rst, multMI_result5, multMI_ovf5);
+	mult_MI multi_MIL1(matrix1_reg[199:160], matrix2_reg[199:192], rst, multMI_result1, multMI_ovf1);
+	mult_MI multi_MIL2(matrix1_reg[159:120], matrix2_reg[199:192], rst, multMI_result2, multMI_ovf2);
+	mult_MI multi_MIL3(matrix1_reg[119:80], matrix2_reg[199:192], rst, multMI_result3, multMI_ovf3);
+	mult_MI multi_MIL4(matrix1_reg[79:40], matrix2_reg[199:192], rst, multMI_result4, multMI_ovf4);
+	mult_MI multi_MIL5(matrix1_reg[39:0], matrix2_reg[199:192], rst, multMI_result5, multMI_ovf5);
 	
 	//Módulo de determinante 2x2
 	det2 determinant2x2(matrix1_reg[199:184], matrix1_reg[159:144], rst, det2x2_result, det2x2_ovf);
@@ -183,6 +133,7 @@ module control_unit(
 	opp_M oppL3(matrix1_reg[119:80], rst, opp_result3, opp_ovf3);
 	opp_M oppL4(matrix1_reg[79:40], rst, opp_result4, opp_ovf4);
 	opp_M oppL5(matrix1_reg[39:0], rst, opp_result5, opp_ovf5);
+	
 	
 	//Transposiçao da matriz
 	always @(*) begin
@@ -229,74 +180,45 @@ module control_unit(
 	
 	
 	//Registradores intermediários
+	reg [3:0] opcode_reg;
 	reg [1:0] msize_reg;
-	reg [2:0] opcode_reg;
+	reg [3:0] position_reg;
 	reg [199:0] matrix1_reg, matrix2_reg;
 	reg [199:0] result_reg;
+	reg [31:0] package_data_out_reg;
 	reg operation_active;
-
-	always @(posedge clk_coprocessor or posedge rst) begin
+	
+	
+	assign package_data_out = package_data_out_reg;
+	
+	
+	always @(posedge clk or posedge rst) begin
 		if (rst) begin
 			state = IDLE;
-			msize_reg = 0;
-			opcode_reg = 0;
-			matrix1_reg = 0;
-			matrix2_reg = 0;
-			result_reg = 0;
-			overflow = 0;
-			ready = 0;
-			operation_active = 0;
 		end 
 		else begin
 			case (state)
 				//Estado inicial IDLE, sendo um estado de espera para uma nova operação
 				IDLE: begin
-					if (start && !operation_active) begin
+					if (instruction[0]) begin
 						operation_active = 1;
-						ready = 0;
 						state = FETCH;
 					end
 					else begin
 						state = IDLE;
-						ready = 1;
 					end
 				end
 				
-				//Estado FETCH para receber as intruções e os dados do buffer
+				//Estado FETCH para receber as intruções
 				FETCH: begin
-					msize_reg = instruction[1:0];
-					opcode_reg = instruction[4:2];
+					opcode_reg = instruction[10:7];
+					msize_reg = instruction[6:5];
+					position_reg = instruction[4:1];
 					state = DECODE;
 				end
 				
 				//Estado de decodificação do buffer
 				DECODE: begin
-					case (msize_reg) //Decodificando o tamanho
-						M2: begin //Matriz 2x2
-							matrix1_reg = matrix1_bff2x2;
-							matrix2_reg = matrix2_bff2x2;
-						end
-						
-						M3: begin //Matriz 3x3
-							matrix1_reg = matrix1_bff3x3;
-							matrix2_reg = matrix2_bff3x3;
-						end
-						
-						M4: begin //Matriz 4x4
-							matrix1_reg = matrix1_bff4x4;
-							matrix2_reg = matrix2_bff4x4;
-						end
-						
-						M5: begin //Matriz 5x5
-							matrix1_reg = matrix1;
-							matrix2_reg = matrix2;
-						end
-						
-						default: begin
-							matrix1_reg = 0;
-							matrix2_reg = 0;
-						end
-					endcase
 					
 					state = EXECUTE;
 				end
@@ -339,22 +261,22 @@ module control_unit(
 						DETERMINANTE: begin
 							//Matriz 2x2
 							if (msize_reg == 0) begin
-								result_reg = det2x2_result;
+								result_reg[199:192] = det2x2_result;
 								overflow = det2x2_ovf;
 							end
 							//Matriz 3x3
 							else if (msize_reg == 1) begin
-								result_reg = det3x3_result;
+								result_reg[199:192] = det3x3_result;
 								overflow = det3x3_ovf;
 							end
 							//Matriz 4x4
 							else if (msize_reg == 2) begin
-								result_reg = det4x4_result;
+								result_reg[199:192] = det4x4_result;
 								overflow = det4x4_ovf;
 							end
 							//Matriz 5x5
 							else begin
-								result_reg = det5x5_result;
+								result_reg[199:192] = det5x5_result;
 								overflow = det5x5_ovf;
 							end
 						end
@@ -375,9 +297,176 @@ module control_unit(
 							result_reg[39:0] = opp_result5;
 							overflow = opp_ovf1 || opp_ovf2 || opp_ovf3 || opp_ovf4 || opp_ovf5;
 						end
-					
+						
+						STORE_MATRIX1: begin
+							//Organizaçao e salvamento dos dados
+							case (position_reg)
+								OFFSET0: begin
+									matrix1_reg[199:184] = instruction[26:11];
+								end
+								
+								OFFSET1: begin
+									matrix1_reg[183:168] = instruction[26:11];
+								end
+								
+								OFFSET2: begin
+									matrix1_reg[167:152] = instruction[26:11];
+								end
+								
+								OFFSET3: begin
+									matrix1_reg[151:136] = instruction[26:11];
+								end
+								
+								OFFSET4: begin
+									matrix1_reg[135:120] = instruction[26:11];
+								end
+								
+								OFFSET5: begin
+									matrix1_reg[119:104] = instruction[26:11];
+								end
+								
+								OFFSET6: begin
+									matrix1_reg[103:88] = instruction[26:11];
+								end
+								
+								OFFSET7: begin
+									matrix1_reg[87:72] = instruction[26:11];
+								end
+								
+								OFFSET8: begin
+									matrix1_reg[71:56] = instruction[26:11];
+								end
+								
+								OFFSET9: begin
+									matrix1_reg[55:40] = instruction[26:11];
+								end
+								
+								OFFSET10: begin
+									matrix1_reg[39:24] = instruction[26:11];
+								end
+								
+								OFFSET11: begin
+									matrix1_reg[23:8] = instruction[26:11];
+								end
+								
+								OFFSET12: begin
+									matrix1_reg[7:0] = instruction[26:19];
+								end
+								
+								default: begin
+									state = IDLE;
+								end
+								
+							endcase
+							
+						end
+						
+						
+						STORE_MATRIX2: begin
+							//Organizaçao e salvamento dos dados
+							case (position_reg)
+								OFFSET0: begin
+									matrix2_reg[199:184] = instruction[26:11];
+								end
+								
+								OFFSET1: begin
+									matrix2_reg[183:168] = instruction[26:11];
+								end
+								
+								OFFSET2: begin
+									matrix2_reg[167:152] = instruction[26:11];
+								end
+								
+								OFFSET3: begin
+									matrix2_reg[151:136] = instruction[26:11];
+								end
+								
+								OFFSET4: begin
+									matrix2_reg[135:120] = instruction[26:11];
+								end
+								
+								OFFSET5: begin
+									matrix2_reg[119:104] = instruction[26:11];
+								end
+								
+								OFFSET6: begin
+									matrix2_reg[103:88] = instruction[26:11];
+								end
+								
+								OFFSET7: begin
+									matrix2_reg[87:72] = instruction[26:11];
+								end
+								
+								OFFSET8: begin
+									matrix2_reg[71:56] = instruction[26:11];
+								end
+								
+								OFFSET9: begin
+									matrix2_reg[55:40] = instruction[26:11];
+								end
+								
+								OFFSET10: begin
+									matrix2_reg[39:24] = instruction[26:11];
+								end
+								
+								OFFSET11: begin
+									matrix2_reg[23:8] = instruction[26:11];
+								end
+								
+								OFFSET12: begin
+									matrix2_reg[7:0] = instruction[26:19];
+								end
+								
+								default: begin
+									state = IDLE;
+								end
+								
+							endcase
+	
+						end
+						
+						LOAD_MATRIXR: begin
+							//Organizaçao e salvamento dos dados
+							case (position_reg)
+								OFFSET0: begin
+									package_data_out_reg = result_reg[199:168];
+								end
+								
+								OFFSET1: begin
+									package_data_out_reg = result_reg[167:136];
+								end
+								
+								OFFSET2: begin
+									package_data_out_reg = result_reg[135:104];
+								end
+								
+								OFFSET3: begin
+									package_data_out_reg = result_reg[103:72];
+								end
+								
+								OFFSET4: begin
+									package_data_out_reg = result_reg[71:40];
+								end
+								
+								OFFSET5: begin
+									package_data_out_reg = result_reg[39:8];
+								end
+								
+								OFFSET6: begin
+									package_data_out_reg[31:24] = result_reg[7:0];
+									package_data_out_reg[23:0] = 0;
+								end
+								
+								default: begin
+									state = IDLE;
+								end
+								
+							endcase
+								
+						end
+						
 						default: begin
-							result_reg = 0;
+							state = IDLE;
 						end
 					endcase
 					
@@ -386,51 +475,13 @@ module control_unit(
 				
 				//Estado de sáida dos dados para o buffer principal
 				WRITEBACK: begin
-					case (msize_reg) //Decodificando o tamanho
-						M2: begin //Matriz 2x2
-							matrix_result = result_bff2x2;
-						end
-						
-						M3: begin //Matriz 3x3
-							matrix_result = result_bff3x3;
-						end
-						
-						M4: begin //Matriz 4x4
-							matrix_result = result_bff4x4;
-						end
-						
-						M5: begin //Matriz 5x5
-							matrix_result = result_reg;
-						end
-						
-						default: begin
-							matrix_result = 0;
-						end
-					endcase
-					
 					operation_active = 0;
-					state = CLN;
-				end
-				
-				CLN: begin
-					overflow = 0;
-					msize_reg = 0;
-					opcode_reg = 0;
-					result_reg = 0;
-					matrix1_reg = 0;
-					matrix2_reg = 0;
-					state = IDLE;					
+					state = IDLE;
+					ready = 1;
 				end
 				
 				default: begin
-					if (start && !operation_active) begin
-						operation_active = 1;
-						ready = 0;
-						state = FETCH;
-					end
-					else begin
-						state = IDLE;
-					end
+					state = IDLE;
 				end
 			endcase
 		end
