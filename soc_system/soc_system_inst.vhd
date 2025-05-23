@@ -1,6 +1,8 @@
 	component soc_system is
 		port (
 			clk_clk                                              : in    std_logic                     := 'X';             -- clk
+			coprocessor_instruction_in_external_conection_export : out   std_logic_vector(31 downto 0);                    -- export
+			data_out_external_conection_export                   : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
 			hps_0_f2h_cold_reset_req_reset_n                     : in    std_logic                     := 'X';             -- reset_n
 			hps_0_f2h_debug_reset_req_reset_n                    : in    std_logic                     := 'X';             -- reset_n
 			hps_0_f2h_stm_hw_events_stm_hwevents                 : in    std_logic_vector(27 downto 0) := (others => 'X'); -- stm_hwevents
@@ -77,18 +79,16 @@
 			memory_mem_odt                                       : out   std_logic;                                        -- mem_odt
 			memory_mem_dm                                        : out   std_logic_vector(3 downto 0);                     -- mem_dm
 			memory_oct_rzqin                                     : in    std_logic                     := 'X';             -- oct_rzqin
-			reset_reset_n                                        : in    std_logic                     := 'X';             -- reset_n
-			data_in_external_conection_export                    : out   std_logic_vector(31 downto 0);                    -- export
-			buffer_instruction_in_external_conection_export      : out   std_logic_vector(5 downto 0);                     -- export
-			coprocessor_instruction_in_external_conection_export : out   std_logic_vector(5 downto 0);                     -- export
-			data_out_external_conection_export                   : in    std_logic_vector(31 downto 0) := (others => 'X'); -- export
-			ready_signals_external_connection_export             : in    std_logic_vector(1 downto 0)  := (others => 'X')  -- export
+			ready_signals_external_connection_export             : in    std_logic_vector(1 downto 0)  := (others => 'X'); -- export
+			reset_reset_n                                        : in    std_logic                     := 'X'              -- reset_n
 		);
 	end component soc_system;
 
 	u0 : component soc_system
 		port map (
 			clk_clk                                              => CONNECTED_TO_clk_clk,                                              --                                           clk.clk
+			coprocessor_instruction_in_external_conection_export => CONNECTED_TO_coprocessor_instruction_in_external_conection_export, -- coprocessor_instruction_in_external_conection.export
+			data_out_external_conection_export                   => CONNECTED_TO_data_out_external_conection_export,                   --                   data_out_external_conection.export
 			hps_0_f2h_cold_reset_req_reset_n                     => CONNECTED_TO_hps_0_f2h_cold_reset_req_reset_n,                     --                      hps_0_f2h_cold_reset_req.reset_n
 			hps_0_f2h_debug_reset_req_reset_n                    => CONNECTED_TO_hps_0_f2h_debug_reset_req_reset_n,                    --                     hps_0_f2h_debug_reset_req.reset_n
 			hps_0_f2h_stm_hw_events_stm_hwevents                 => CONNECTED_TO_hps_0_f2h_stm_hw_events_stm_hwevents,                 --                       hps_0_f2h_stm_hw_events.stm_hwevents
@@ -165,11 +165,7 @@
 			memory_mem_odt                                       => CONNECTED_TO_memory_mem_odt,                                       --                                              .mem_odt
 			memory_mem_dm                                        => CONNECTED_TO_memory_mem_dm,                                        --                                              .mem_dm
 			memory_oct_rzqin                                     => CONNECTED_TO_memory_oct_rzqin,                                     --                                              .oct_rzqin
-			reset_reset_n                                        => CONNECTED_TO_reset_reset_n,                                        --                                         reset.reset_n
-			data_in_external_conection_export                    => CONNECTED_TO_data_in_external_conection_export,                    --                    data_in_external_conection.export
-			buffer_instruction_in_external_conection_export      => CONNECTED_TO_buffer_instruction_in_external_conection_export,      --      buffer_instruction_in_external_conection.export
-			coprocessor_instruction_in_external_conection_export => CONNECTED_TO_coprocessor_instruction_in_external_conection_export, -- coprocessor_instruction_in_external_conection.export
-			data_out_external_conection_export                   => CONNECTED_TO_data_out_external_conection_export,                   --                   data_out_external_conection.export
-			ready_signals_external_connection_export             => CONNECTED_TO_ready_signals_external_connection_export              --             ready_signals_external_connection.export
+			ready_signals_external_connection_export             => CONNECTED_TO_ready_signals_external_connection_export,             --             ready_signals_external_connection.export
+			reset_reset_n                                        => CONNECTED_TO_reset_reset_n                                         --                                         reset.reset_n
 		);
 

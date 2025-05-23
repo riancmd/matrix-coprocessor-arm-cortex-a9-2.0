@@ -9,22 +9,6 @@
    categories="System" />
  <parameter name="bonusData"><![CDATA[bonusData 
 {
-   element buffer_intruction
-   {
-      datum _sortIndex
-      {
-         value = "9";
-         type = "int";
-      }
-   }
-   element buffer_intruction.s1
-   {
-      datum baseAddress
-      {
-         value = "16";
-         type = "String";
-      }
-   }
    element clk_0
    {
       datum _sortIndex
@@ -37,7 +21,7 @@
    {
       datum _sortIndex
       {
-         value = "10";
+         value = "8";
          type = "int";
       }
    }
@@ -45,23 +29,15 @@
    {
       datum baseAddress
       {
-         value = "32";
+         value = "0";
          type = "String";
-      }
-   }
-   element data_in
-   {
-      datum _sortIndex
-      {
-         value = "8";
-         type = "int";
       }
    }
    element data_out
    {
       datum _sortIndex
       {
-         value = "11";
+         value = "9";
          type = "int";
       }
    }
@@ -69,7 +45,7 @@
    {
       datum baseAddress
       {
-         value = "48";
+         value = "16";
          type = "String";
       }
    }
@@ -172,7 +148,7 @@
    {
       datum _sortIndex
       {
-         value = "12";
+         value = "10";
          type = "int";
       }
    }
@@ -180,7 +156,7 @@
    {
       datum baseAddress
       {
-         value = "64";
+         value = "32";
          type = "String";
       }
    }
@@ -226,20 +202,10 @@
  <parameter name="timeStamp" value="0" />
  <parameter name="useTestBenchNamingPattern" value="false" />
  <instanceScript></instanceScript>
- <interface
-   name="buffer_instruction_in_external_conection"
-   internal="buffer_intruction.external_connection"
-   type="conduit"
-   dir="end" />
  <interface name="clk" internal="clk_0.clk_in" type="clock" dir="end" />
  <interface
    name="coprocessor_instruction_in_external_conection"
    internal="coprocessor_instruction.external_connection"
-   type="conduit"
-   dir="end" />
- <interface
-   name="data_in_external_conection"
-   internal="data_in.external_connection"
    type="conduit"
    dir="end" />
  <interface
@@ -281,24 +247,6 @@
    type="conduit"
    dir="end" />
  <interface name="reset" internal="clk_0.clk_in_reset" type="reset" dir="end" />
- <module
-   name="buffer_intruction"
-   kind="altera_avalon_pio"
-   version="23.1"
-   enabled="1">
-  <parameter name="bitClearingEdgeCapReg" value="false" />
-  <parameter name="bitModifyingOutReg" value="false" />
-  <parameter name="captureEdge" value="false" />
-  <parameter name="clockRate" value="50000000" />
-  <parameter name="direction" value="Output" />
-  <parameter name="edgeType" value="RISING" />
-  <parameter name="generateIRQ" value="false" />
-  <parameter name="irqType" value="LEVEL" />
-  <parameter name="resetValue" value="0" />
-  <parameter name="simDoTestBenchWiring" value="false" />
-  <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="6" />
- </module>
  <module name="clk_0" kind="clock_source" version="23.1" enabled="1">
   <parameter name="clockFrequency" value="50000000" />
   <parameter name="clockFrequencyKnown" value="true" />
@@ -310,20 +258,6 @@
    kind="altera_avalon_pio"
    version="23.1"
    enabled="1">
-  <parameter name="bitClearingEdgeCapReg" value="false" />
-  <parameter name="bitModifyingOutReg" value="false" />
-  <parameter name="captureEdge" value="false" />
-  <parameter name="clockRate" value="50000000" />
-  <parameter name="direction" value="Output" />
-  <parameter name="edgeType" value="RISING" />
-  <parameter name="generateIRQ" value="false" />
-  <parameter name="irqType" value="LEVEL" />
-  <parameter name="resetValue" value="0" />
-  <parameter name="simDoTestBenchWiring" value="false" />
-  <parameter name="simDrivenValue" value="0" />
-  <parameter name="width" value="6" />
- </module>
- <module name="data_in" kind="altera_avalon_pio" version="23.1" enabled="1">
   <parameter name="bitClearingEdgeCapReg" value="false" />
   <parameter name="bitModifyingOutReg" value="false" />
   <parameter name="captureEdge" value="false" />
@@ -1024,7 +958,7 @@
    kind="avalon"
    version="23.1"
    start="hps_0.h2f_lw_axi_master"
-   end="data_in.s1">
+   end="coprocessor_instruction.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0000" />
   <parameter name="defaultConnection" value="false" />
@@ -1033,7 +967,7 @@
    kind="avalon"
    version="23.1"
    start="hps_0.h2f_lw_axi_master"
-   end="buffer_intruction.s1">
+   end="data_out.s1">
   <parameter name="arbitrationPriority" value="1" />
   <parameter name="baseAddress" value="0x0010" />
   <parameter name="defaultConnection" value="false" />
@@ -1042,27 +976,9 @@
    kind="avalon"
    version="23.1"
    start="hps_0.h2f_lw_axi_master"
-   end="coprocessor_instruction.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0020" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="23.1"
-   start="hps_0.h2f_lw_axi_master"
-   end="data_out.s1">
-  <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0030" />
-  <parameter name="defaultConnection" value="false" />
- </connection>
- <connection
-   kind="avalon"
-   version="23.1"
-   start="hps_0.h2f_lw_axi_master"
    end="ready_signals.s1">
   <parameter name="arbitrationPriority" value="1" />
-  <parameter name="baseAddress" value="0x0040" />
+  <parameter name="baseAddress" value="0x0020" />
   <parameter name="defaultConnection" value="false" />
  </connection>
  <connection
@@ -1126,15 +1042,9 @@
    kind="clock"
    version="23.1"
    start="clk_0.clk"
-   end="buffer_intruction.clk" />
- <connection
-   kind="clock"
-   version="23.1"
-   start="clk_0.clk"
    end="coprocessor_instruction.clk" />
  <connection kind="clock" version="23.1" start="clk_0.clk" end="data_out.clk" />
  <connection kind="clock" version="23.1" start="clk_0.clk" end="ready_signals.clk" />
- <connection kind="clock" version="23.1" start="clk_0.clk" end="data_in.clk" />
  <connection
    kind="clock"
    version="23.1"
@@ -1194,16 +1104,6 @@
    version="23.1"
    start="clk_0.clk_reset"
    end="jtag_uart.reset" />
- <connection
-   kind="reset"
-   version="23.1"
-   start="clk_0.clk_reset"
-   end="data_in.reset" />
- <connection
-   kind="reset"
-   version="23.1"
-   start="clk_0.clk_reset"
-   end="buffer_intruction.reset" />
  <connection
    kind="reset"
    version="23.1"

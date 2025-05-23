@@ -4,10 +4,8 @@
 
 `timescale 1 ps / 1 ps
 module soc_system (
-		output wire [5:0]  buffer_instruction_in_external_conection_export,      //      buffer_instruction_in_external_conection.export
 		input  wire        clk_clk,                                              //                                           clk.clk
-		output wire [5:0]  coprocessor_instruction_in_external_conection_export, // coprocessor_instruction_in_external_conection.export
-		output wire [31:0] data_in_external_conection_export,                    //                    data_in_external_conection.export
+		output wire [31:0] coprocessor_instruction_in_external_conection_export, // coprocessor_instruction_in_external_conection.export
 		input  wire [31:0] data_out_external_conection_export,                   //                   data_out_external_conection.export
 		input  wire        hps_0_f2h_cold_reset_req_reset_n,                     //                      hps_0_f2h_cold_reset_req.reset_n
 		input  wire        hps_0_f2h_debug_reset_req_reset_n,                    //                     hps_0_f2h_debug_reset_req.reset_n
@@ -188,16 +186,6 @@ module soc_system (
 	wire         mm_interconnect_0_intr_capturer_0_avalon_slave_0_read;     // mm_interconnect_0:intr_capturer_0_avalon_slave_0_read -> intr_capturer_0:read
 	wire  [31:0] mm_interconnect_0_sysid_qsys_control_slave_readdata;       // sysid_qsys:readdata -> mm_interconnect_0:sysid_qsys_control_slave_readdata
 	wire   [0:0] mm_interconnect_0_sysid_qsys_control_slave_address;        // mm_interconnect_0:sysid_qsys_control_slave_address -> sysid_qsys:address
-	wire         mm_interconnect_0_data_in_s1_chipselect;                   // mm_interconnect_0:data_in_s1_chipselect -> data_in:chipselect
-	wire  [31:0] mm_interconnect_0_data_in_s1_readdata;                     // data_in:readdata -> mm_interconnect_0:data_in_s1_readdata
-	wire   [1:0] mm_interconnect_0_data_in_s1_address;                      // mm_interconnect_0:data_in_s1_address -> data_in:address
-	wire         mm_interconnect_0_data_in_s1_write;                        // mm_interconnect_0:data_in_s1_write -> data_in:write_n
-	wire  [31:0] mm_interconnect_0_data_in_s1_writedata;                    // mm_interconnect_0:data_in_s1_writedata -> data_in:writedata
-	wire         mm_interconnect_0_buffer_intruction_s1_chipselect;         // mm_interconnect_0:buffer_intruction_s1_chipselect -> buffer_intruction:chipselect
-	wire  [31:0] mm_interconnect_0_buffer_intruction_s1_readdata;           // buffer_intruction:readdata -> mm_interconnect_0:buffer_intruction_s1_readdata
-	wire   [1:0] mm_interconnect_0_buffer_intruction_s1_address;            // mm_interconnect_0:buffer_intruction_s1_address -> buffer_intruction:address
-	wire         mm_interconnect_0_buffer_intruction_s1_write;              // mm_interconnect_0:buffer_intruction_s1_write -> buffer_intruction:write_n
-	wire  [31:0] mm_interconnect_0_buffer_intruction_s1_writedata;          // mm_interconnect_0:buffer_intruction_s1_writedata -> buffer_intruction:writedata
 	wire         mm_interconnect_0_coprocessor_instruction_s1_chipselect;   // mm_interconnect_0:coprocessor_instruction_s1_chipselect -> coprocessor_instruction:chipselect
 	wire  [31:0] mm_interconnect_0_coprocessor_instruction_s1_readdata;     // coprocessor_instruction:readdata -> mm_interconnect_0:coprocessor_instruction_s1_readdata
 	wire   [1:0] mm_interconnect_0_coprocessor_instruction_s1_address;      // mm_interconnect_0:coprocessor_instruction_s1_address -> coprocessor_instruction:address
@@ -257,22 +245,11 @@ module soc_system (
 	wire  [31:0] hps_0_f2h_irq1_irq;                                        // irq_mapper_001:sender_irq -> hps_0:f2h_irq_p1
 	wire  [31:0] intr_capturer_0_interrupt_receiver_irq;                    // irq_mapper_002:sender_irq -> intr_capturer_0:interrupt_in
 	wire         irq_mapper_receiver0_irq;                                  // jtag_uart:av_irq -> [irq_mapper:receiver0_irq, irq_mapper_002:receiver0_irq]
-	wire         rst_controller_reset_out_reset;                            // rst_controller:reset_out -> [buffer_intruction:reset_n, coprocessor_instruction:reset_n, data_in:reset_n, data_out:reset_n, intr_capturer_0:rst_n, irq_mapper_002:reset, jtag_uart:rst_n, mm_interconnect_0:fpga_only_master_clk_reset_reset_bridge_in_reset_reset, mm_interconnect_0:onchip_memory2_0_reset1_reset_bridge_in_reset_reset, mm_interconnect_1:hps_only_master_clk_reset_reset_bridge_in_reset_reset, mm_interconnect_1:hps_only_master_master_translator_reset_reset_bridge_in_reset_reset, onchip_memory2_0:reset, ready_signals:reset_n, rst_translator:in_reset, sysid_qsys:reset_n]
+	wire         rst_controller_reset_out_reset;                            // rst_controller:reset_out -> [coprocessor_instruction:reset_n, data_out:reset_n, intr_capturer_0:rst_n, irq_mapper_002:reset, jtag_uart:rst_n, mm_interconnect_0:fpga_only_master_clk_reset_reset_bridge_in_reset_reset, mm_interconnect_0:onchip_memory2_0_reset1_reset_bridge_in_reset_reset, mm_interconnect_1:hps_only_master_clk_reset_reset_bridge_in_reset_reset, mm_interconnect_1:hps_only_master_master_translator_reset_reset_bridge_in_reset_reset, onchip_memory2_0:reset, ready_signals:reset_n, rst_translator:in_reset, sysid_qsys:reset_n]
 	wire         rst_controller_reset_out_reset_req;                        // rst_controller:reset_req -> [onchip_memory2_0:reset_req, rst_translator:reset_req_in]
 	wire         rst_controller_001_reset_out_reset;                        // rst_controller_001:reset_out -> [mm_interconnect_0:hps_0_h2f_axi_master_agent_clk_reset_reset_bridge_in_reset_reset, mm_interconnect_1:hps_0_f2h_axi_slave_agent_reset_sink_reset_bridge_in_reset_reset]
 
-	soc_system_buffer_intruction buffer_intruction (
-		.clk        (clk_clk),                                           //                 clk.clk
-		.reset_n    (~rst_controller_reset_out_reset),                   //               reset.reset_n
-		.address    (mm_interconnect_0_buffer_intruction_s1_address),    //                  s1.address
-		.write_n    (~mm_interconnect_0_buffer_intruction_s1_write),     //                    .write_n
-		.writedata  (mm_interconnect_0_buffer_intruction_s1_writedata),  //                    .writedata
-		.chipselect (mm_interconnect_0_buffer_intruction_s1_chipselect), //                    .chipselect
-		.readdata   (mm_interconnect_0_buffer_intruction_s1_readdata),   //                    .readdata
-		.out_port   (buffer_instruction_in_external_conection_export)    // external_connection.export
-	);
-
-	soc_system_buffer_intruction coprocessor_instruction (
+	soc_system_coprocessor_instruction coprocessor_instruction (
 		.clk        (clk_clk),                                                 //                 clk.clk
 		.reset_n    (~rst_controller_reset_out_reset),                         //               reset.reset_n
 		.address    (mm_interconnect_0_coprocessor_instruction_s1_address),    //                  s1.address
@@ -281,17 +258,6 @@ module soc_system (
 		.chipselect (mm_interconnect_0_coprocessor_instruction_s1_chipselect), //                    .chipselect
 		.readdata   (mm_interconnect_0_coprocessor_instruction_s1_readdata),   //                    .readdata
 		.out_port   (coprocessor_instruction_in_external_conection_export)     // external_connection.export
-	);
-
-	soc_system_data_in data_in (
-		.clk        (clk_clk),                                 //                 clk.clk
-		.reset_n    (~rst_controller_reset_out_reset),         //               reset.reset_n
-		.address    (mm_interconnect_0_data_in_s1_address),    //                  s1.address
-		.write_n    (~mm_interconnect_0_data_in_s1_write),     //                    .write_n
-		.writedata  (mm_interconnect_0_data_in_s1_writedata),  //                    .writedata
-		.chipselect (mm_interconnect_0_data_in_s1_chipselect), //                    .chipselect
-		.readdata   (mm_interconnect_0_data_in_s1_readdata),   //                    .readdata
-		.out_port   (data_in_external_conection_export)        // external_connection.export
 	);
 
 	soc_system_data_out data_out (
@@ -673,21 +639,11 @@ module soc_system (
 		.fpga_only_master_master_readdatavalid                            (fpga_only_master_master_readdatavalid),                     //                                                           .readdatavalid
 		.fpga_only_master_master_write                                    (fpga_only_master_master_write),                             //                                                           .write
 		.fpga_only_master_master_writedata                                (fpga_only_master_master_writedata),                         //                                                           .writedata
-		.buffer_intruction_s1_address                                     (mm_interconnect_0_buffer_intruction_s1_address),            //                                       buffer_intruction_s1.address
-		.buffer_intruction_s1_write                                       (mm_interconnect_0_buffer_intruction_s1_write),              //                                                           .write
-		.buffer_intruction_s1_readdata                                    (mm_interconnect_0_buffer_intruction_s1_readdata),           //                                                           .readdata
-		.buffer_intruction_s1_writedata                                   (mm_interconnect_0_buffer_intruction_s1_writedata),          //                                                           .writedata
-		.buffer_intruction_s1_chipselect                                  (mm_interconnect_0_buffer_intruction_s1_chipselect),         //                                                           .chipselect
 		.coprocessor_instruction_s1_address                               (mm_interconnect_0_coprocessor_instruction_s1_address),      //                                 coprocessor_instruction_s1.address
 		.coprocessor_instruction_s1_write                                 (mm_interconnect_0_coprocessor_instruction_s1_write),        //                                                           .write
 		.coprocessor_instruction_s1_readdata                              (mm_interconnect_0_coprocessor_instruction_s1_readdata),     //                                                           .readdata
 		.coprocessor_instruction_s1_writedata                             (mm_interconnect_0_coprocessor_instruction_s1_writedata),    //                                                           .writedata
 		.coprocessor_instruction_s1_chipselect                            (mm_interconnect_0_coprocessor_instruction_s1_chipselect),   //                                                           .chipselect
-		.data_in_s1_address                                               (mm_interconnect_0_data_in_s1_address),                      //                                                 data_in_s1.address
-		.data_in_s1_write                                                 (mm_interconnect_0_data_in_s1_write),                        //                                                           .write
-		.data_in_s1_readdata                                              (mm_interconnect_0_data_in_s1_readdata),                     //                                                           .readdata
-		.data_in_s1_writedata                                             (mm_interconnect_0_data_in_s1_writedata),                    //                                                           .writedata
-		.data_in_s1_chipselect                                            (mm_interconnect_0_data_in_s1_chipselect),                   //                                                           .chipselect
 		.data_out_s1_address                                              (mm_interconnect_0_data_out_s1_address),                     //                                                data_out_s1.address
 		.data_out_s1_readdata                                             (mm_interconnect_0_data_out_s1_readdata),                    //                                                           .readdata
 		.intr_capturer_0_avalon_slave_0_address                           (mm_interconnect_0_intr_capturer_0_avalon_slave_0_address),  //                             intr_capturer_0_avalon_slave_0.address

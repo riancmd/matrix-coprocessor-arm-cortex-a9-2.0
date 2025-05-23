@@ -228,24 +228,27 @@ wire [27:0] stm_hw_events;
 assign stm_hw_events    = {{3{1'b0}},SW, fpga_led_internal, fpga_debounced_buttons};
 
 //Instancia do buffer principal conectado aos PIOs
-main_buffer main_buffer(
+control_unit control_unit(
 	.clk(CLOCK_50),
 	.rst(!KEY[0]),
-	.package_data_in(data_in),
-	.buffer_instruction(buffer_instruction),
-	.coprocessor_instruction(coprocessor_instruction),
+	.instruction(instruction),
 	.package_data_out(data_out),
-	.buffer_ready(buffer_ready),
-	.coprocessor_ready(coprocessor_ready),
-	.overflow(LEDR[0])
+	.ready(ready),
+	.overflow_wire(overflow)
 );
+assign LEDR[1] = ready;
+assign LEDR[0] = overflow;
+
+assign LEDR[9:2] = instruction[26:19];
+
+wire [31:0] instruction;
+wire [31:0] data_out;
+wire ready, overflow;
 
 soc_system u0 (
-	.data_in_external_conection_export(data_in),
-	.buffer_instruction_in_external_conection_export(buffer_instruction),
-	.coprocessor_instruction_in_external_conection_export(coprocessor_instruction),
+	.coprocessor_instruction_in_external_conection_export(instruction),
 	.data_out_external_conection_export(data_out),
-	.ready_signals_external_connection_export({buffer_ready, coprocessor_ready}),
+	.ready_signals_external_connection_export({ready, overflow}),
 
 
     .clk_clk                               ( CLOCK_50           ),      //                            clk.clk
