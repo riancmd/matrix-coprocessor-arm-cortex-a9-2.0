@@ -80,7 +80,33 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
     scanf("%d", &option2);
 
     qty = (option2 > 4) ? 1 : 2; // verifica qtd de matrizes
-    opcode = option2;
+    
+    switch (option2){
+        case 1: 
+                opcode = SOM;
+                break;
+        case 2: 
+                opcode = SUB;
+                break;
+        case 3: 
+                opcode = MULM;
+                break;
+        case 4: 
+                opcode = MULI;
+                break;
+        case 5: 
+                opcode = DET;
+                break;
+        case 6: 
+                opcode = TRANS;
+                break;
+        case 7: 
+                opcode = OPP;
+                break;
+        default:
+                printf("Erro de opcode");
+                exit(0);
+    }
 
     // DEFINIR LÓGICA PARA OPCODE = CONSTANTES
 
