@@ -5,11 +5,11 @@
 
 extern void start_program(void);
 
-extern int operate_buffer_send(int opcode, int position, int start, int* data);
+extern int operate_buffer_send(int opcode, int size, int position, int8_t* matriz);
 
-extern int calculate_matriz(int opcode, int size, int start);
+extern int calculate_matriz(int opcode, int size, int position);
 
-extern uint32_t operate_buffer_receive(int opcode, int position, int start);
+extern int operate_buffer_receive(int opcode, int size, int position, int8_t* matriz);
 
 extern void exit_program(void);
 
