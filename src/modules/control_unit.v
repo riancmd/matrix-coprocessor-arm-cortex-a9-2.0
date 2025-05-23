@@ -158,13 +158,13 @@ module control_unit(
 		trans_result4[39:32] = matrix1_reg[175:168];
 		trans_result4[31:24] = matrix1_reg[135:128];
 		trans_result4[23:16] = matrix1_reg[95:88];
-		trans_result4[15:8] = matrix1_reg[55:38];
+		trans_result4[15:8] = matrix1_reg[55:48];
 		trans_result4[7:0] = matrix1_reg[15:8];
 		
 		trans_result5[39:32] = matrix1_reg[167:160];
 		trans_result5[31:24] = matrix1_reg[127:120];
 		trans_result5[23:16] = matrix1_reg[87:80];
-		trans_result5[15:8] = matrix1_reg[37:30];
+		trans_result5[15:8] = matrix1_reg[47:40];
 		trans_result5[7:0] = matrix1_reg[7:0];
 	end
 	
