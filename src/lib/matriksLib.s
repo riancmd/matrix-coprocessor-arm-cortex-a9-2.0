@@ -60,6 +60,9 @@
 .global operate_buffer_receive
 .type operate_buffer_receive, %function
 
+.global signal_overflow
+.type signal_overflow, %function
+
 @ Dados
 .section .data
     dev_mem: .asciz "/dev/mem"
@@ -71,43 +74,43 @@
 @ Procedimento de Mapeamento dos endereços virtuais dos PIOs
 .section .text
 start_program:
-    push {r1-r10, lr} @ Salva os registradores que devem ser preservados e o Registrador de retorno (lr)
+    PUSH {R1-R10, lr} @ Salva os registradores que devem ser preservados e o Registrador de retorno (lr)
 
-    ldr r0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
-    mov r1, #2 @ "open for read and write"
-    mov r7, #OPEN
-    svc #0
-    mov r10, r0 @ Salva o File Descriptor
+    LDR r0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
+    MOV R1, #2 @ "open for read and write"
+    MOV r7, #OPEN
+    SVC #0
+    MOV R10, r0 @ Salva o File Descriptor
     
-    cmp r0, #0
-    blt mmap_fail @ Caso haja algum erro no mapeamento, encerra o programa
+    CMP r0, #0
+    BLT mmap_fail @ Caso haja algum erro no mapeamento, encerra o programa
 
     @ Mapeamento da memória
-    mov r0, #0 @ Kernel escolhe qual endereço utilizar
-    ldr r1, =PAGE_SIZE @ Tamanho do mapeamento = 4096b
-    mov r2, #3
-    mov r3, #MAP_SHARED
-    mov r4, r10 @ File descriptor do /dev/mem
-    ldr r5,=FPGA_BRIDGE_PHYS @ Endereço físico base
-    mov r7, #MMAP
-    svc #0
+    MOV r0, #0 @ Kernel escolhe qual endereço utilizar
+    LDR R1, =PAGE_SIZE @ Tamanho do mapeamento = 4096b
+    MOV r2, #3
+    MOV r3, #MAP_SHARED
+    MOV r4, R10 @ File descriptor do /dev/mem
+    LDR r5,=FPGA_BRIDGE_PHYS @ Endereço físico base
+    MOV r7, #MMAP
+    SVC #0
 
-    cmp r0, #MAP_FAILED
+    CMP r0, #MAP_FAILED
     beq mmap_fail
-    ldr r1, =axi_lw_adrss
-    STR r0, [r1] @ Endereço virtual mapeado colocado na variàvel
+    LDR R1, =axi_lw_adrss
+    STR r0, [R1] @ Endereço virtual mapeado colocado na variàvel
        
-    pop {r1-r10, lr} @ Restaura registradores e retorna para o antigo lr
-    bx lr
+    POP {R1-R10, lr} @ Restaura registradores e retorna para o antigo lr
+    BX lr
 
 mmap_fail:
-    mov r0, #STDO @standard output
-    ldr r1,=mmap_error @ Guarda valor da string
-    ldr r2,=len1
-    mov r7, #WRITE @ Syscall: write
-    svc #0
-    mov r7, #EXIT @ Syscall: exit
-    svc #0
+    MOV r0, #STDO @standard output
+    LDR R1,=mmap_error @ Guarda valor da string
+    LDR r2,=len1
+    MOV r7, #WRITE @ Syscall: write
+    SVC #0
+    MOV r7, #EXIT @ Syscall: exit
+    SVC #0
 
 
 @ Procedimento para finalizar o programa
@@ -235,8 +238,25 @@ wait_response_buffer_receive:
     LSR R0, R0, #8
     STRB R0, [R3, #0]
 
-    LDR R0, [R8, #PIO_DATA_OUT_OFFSET]
+    MOV R0, #1
     
     POP {R4-R8, LR} @ Restaura registradores e retorna para o antigo LR
     BX LR
-    
+
+signal_overflow:
+    PUSH {R4-R8, LR} @ Salva os registradores que devem ser preservados e o Registrador de retorno (LR)
+
+    @ Carrega o endereço base mapeado do AXI
+    LDR R8, =axi_lw_adrss
+    LDR R8, [R8]
+    LDR R5, [R8, #PIO_READY_SIGNALS_OFFSET]
+
+    AND R6, R5, #0x1 @ Isola o bit 0 (Overflow)
+
+    MOV R0, #0 @ Inicializa retorno com 0
+    CMP R6, #0 @ Compara o bit 0 (Overflow) com 0
+    MOVEQ R0, #0 @ Se for 0, mantém R0 em 0
+    MOVNE R0, #1 @ Se for 1, coloca 1 em R0
+
+    POP {R4-R8, LR} @ Restaura registradores e retorna para o antigo LR
+    BX LR

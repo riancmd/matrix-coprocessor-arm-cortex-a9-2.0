@@ -287,6 +287,7 @@ module control_unit(
 							result_reg[119:80] = trans_result3;
 							result_reg[79:40] = trans_result4;
 							result_reg[39:0] = trans_result5;
+							overflow = 0;
 						end
 					
 						OPOSTA: begin

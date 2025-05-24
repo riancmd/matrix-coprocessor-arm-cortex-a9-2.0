@@ -11,6 +11,8 @@ extern int calculate_matriz(int opcode, int size, int position);
 
 extern int operate_buffer_receive(int opcode, int size, int position, int8_t* matriz);
 
+extern int signal_overflow(void);
+
 extern void exit_program(void);
 
 #endif

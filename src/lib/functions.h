@@ -6,7 +6,6 @@
 #define storeMatrixA 0b0111
 #define storeMatrixB 0b1000
 #define loadMatrixResult 0b1001
-#define START 0b1
 
 // definição das operações (IS - instruction set)
 #define SOM 0b000
@@ -17,13 +16,10 @@
 #define TRANS 0b101
 #define OPP 0b110
 
-// definição de constantes
-#define pos 0
-
 // protótipo das funções
 void showMenu();
 void clean();
 void menuOperation(int8_t* matrixA, int8_t* matrixB, int8_t* result);
-void printarMatriz(int8_t* matriz, int size);
+void printarMatriz(int8_t* matriz, int8_t* matrizA, int8_t* matrizB, int size, int opcode, int qty);
 
 #endif

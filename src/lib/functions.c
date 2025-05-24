@@ -64,14 +64,14 @@ void showMenu(){
     }
 }
 
-void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
+void menuOperation(int8_t* matrixA, int8_t* matrixB, int8_t* result){
     int qty; // variável guarda se op precisa de 2 ou 1 matriz
     int size;
     int option2;
     int i,j; // iteradores
     int opcode;
-    int* ponteiroMatriz; // Ponteiro para percorrer pelos pacotes de números da matriz
-    int tempM[25];
+    int8_t* tempM;
+    tempM = (int8_t *)calloc(25, sizeof(int8_t));
     int flagOK1, flagOK2, flagResult;
     int8_t* temp_pos; // Ponteiro que indica endereço atual do conjunto de números carregados
 
@@ -104,7 +104,7 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
                 opcode = OPP;
                 break;
         default:
-                printf("Erro de opcode");
+                printf("Erro de opcode\n");
                 exit(0);
     }
 
@@ -121,10 +121,9 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
     printf("\nDigite a(s) matriz(es) em ordem de M[i,j].\n\n");
 
     // recebe input da matriz A
-    printf("%d", size);
     for(i = 0; i < (size*size); i++){
         printf("matrizA[%d][%d]: ", (i/size), (i%size)); // printa a posição do elemento
-        scanf("%d", &(tempM[i]));
+        scanf("%hhd", &(tempM[i]));
     }
 
     // passa para matriz A
@@ -143,7 +142,7 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
     // recebe o input da matriz B ou de número
     if((option2) == 4){
         printf("\n Digite o número: ");
-        scanf("%d", &(matrixB[0]));
+        scanf("%hhd", &(matrixB[0]));
         // preenche restante com zeros
         for (i = 1; i < 25; i++){
             matrixB[i] = 0;
@@ -153,7 +152,7 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
     else if (qty == 2){
         for(i = 0; i < (size*size); i++){
         printf("matrizB[%d][%d]: ", (i/size), (i%size)); // printa a posição do elemento
-        scanf("%d", &(tempM[i]));
+        scanf("%hhd", &(tempM[i]));
         }
 
         // passa para matriz B
@@ -188,10 +187,6 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
             }
     }else {flagOK2 = 1;}
     
-    /*
-    int posicao;
-    posicao = 0;
-    */
     
     // envia operação
     if (flagOK1 && flagOK2){ // verifica 
@@ -206,18 +201,51 @@ void menuOperation(uint8_t* matrixA, uint8_t* matrixB, uint8_t* result){
         
     }
     
-    if (flagResult) printarMatriz(result, size);
+    if (flagResult) printarMatriz(result, matrixA, matrixB, size, opcode, qty);
 
-    printf("\nDeseja continuar? (S/N): ");
+    printf("\nDeseja continuar?");
+    printf("\n(1) Sim\n(0) Não\n");
     scanf("%d", &option2);
+    if(!option2){exit(0);}
+
 }
 
-void printarMatriz(uint8_t* matriz, int size, int opcode){ //Por enquanto, printa a matriz como sendo 5x5 independente do tamanho
+void printarMatriz(int8_t* matriz, int8_t* matrizA, int8_t* matrizB, int size, int opcode, int qty){ 
     int i, indice, linha, coluna;
+
+    printf("\n\nMatrizA: \n");
+    //For para printar Matriz A 
+    for (linha = 0; linha < size; linha++) {
+        for (coluna = 0; coluna < size; coluna++) {
+            // calcula o índice na matriz 5x5
+            indice = linha * 5 + coluna;
+            printf("    %3d    ", matrizA[indice]);
+        }
+        printf("\n"); // Nova linha após cada linha da matriz
+    }
+
+    //Verifica se é necessário printar Matriz B ou Escalar
+    if (qty == 2){
+        if (opcode == MULI){
+            printf("\n\nEscalar: \n%d\n", matrizB[0]);
+        }
+        else {
+            printf("\n\nMatrizB: \n");
+
+            for (linha = 0; linha < size; linha++) {
+                for (coluna = 0; coluna < size; coluna++) {
+                    // calcula o índice na matriz 5x5
+                    indice = linha * 5 + coluna;
+                    printf("    %3d    ", matrizB[indice]);
+                }
+                printf("\n"); // Nova linha após cada linha da matriz
+            }
+        }
+    }
 
     printf("\n\nResultante: \n");
 
-    if (opcode == 5){ // determinante
+    if (opcode == DET){ // determinante
         printf("    %3d    ", matriz[0]);
     } else{
         for (linha = 0; linha < size; linha++) {
@@ -231,7 +259,9 @@ void printarMatriz(uint8_t* matriz, int size, int opcode){ //Por enquanto, print
         
     }
 
-    printf("\n");
+    printf("\n\nOverflow: \n%d\n", signal_overflow());
+
+    //
 }
 
 void clean(){
