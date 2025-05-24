@@ -6,7 +6,7 @@ JedecChain;
 	P ActionCode(Ign)
 		Device PartName(SOCVHPS) MfrSpec(OpMask(0));
 	P ActionCode(Cfg)
-		Device PartName(5CSEMA5F31) Path("/home/aluno/Imagens/matrix-coprocessor-arm-cortex-a9-2.0 - Data 22-05/output_files/") File("soc_system.sof") MfrSpec(OpMask(1));
+		Device PartName(5CSEMA5F31) Path("/home/aluno/Imagens/matrix-coprocessor-arm-cortex-a9-2.0-Atual_BLESSED/matrix-coprocessor-arm-cortex-a9-2.0-main/output_files/") File("soc_system.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 

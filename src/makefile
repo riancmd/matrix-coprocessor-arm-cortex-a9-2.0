@@ -1,8 +1,8 @@
 help:
-	@help: exibe essa ajuda
-	@compile: compila o codigo
-	@run: executa o codigo
-	@clean: limpa a pasta
+	@echo help: exibe essa ajuda
+	@echo compile: compila o codigo
+	@echo run: executa o codigo
+	@echo clean: limpa a pasta
 
 compile:
 	@as -c lib/matriksLib.s -o lib/matriks.o && gcc -c lib/functions.c -o lib/functions.o -I./lib && gcc -c main.c -o main.o -I./lib && gcc main.o lib/functions.o lib/matriks.o -o main

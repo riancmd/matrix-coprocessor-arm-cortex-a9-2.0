@@ -1,5 +1,5 @@
 Assembler report for soc_system
-Thu May 22 15:51:45 2025
+Fri May 23 11:40:03 2025
 Quartus Prime Version 23.1std.0 Build 991 11/28/2023 SC Lite Edition
 
 
@@ -39,7 +39,7 @@ https://fpgasoftware.intel.com/eula.
 +---------------------------------------------------------------+
 ; Assembler Summary                                             ;
 +-----------------------+---------------------------------------+
-; Assembler Status      ; Successful - Thu May 22 15:51:45 2025 ;
+; Assembler Status      ; Successful - Fri May 23 11:40:03 2025 ;
 ; Revision Name         ; soc_system                            ;
 ; Top-level Entity Name ; ghrd_top                              ;
 ; Family                ; Cyclone V                             ;
@@ -64,13 +64,13 @@ https://fpgasoftware.intel.com/eula.
 +--------+------------------------+--------------+
 
 
-+---------------------------------------------------------------------------------------------------+
-; Assembler Generated Files                                                                         ;
-+---------------------------------------------------------------------------------------------------+
-; File Name                                                                                         ;
-+---------------------------------------------------------------------------------------------------+
-; /home/aluno/Imagens/matrix-coprocessor-arm-cortex-a9-2.0 - Data 22-05/output_files/soc_system.sof ;
-+---------------------------------------------------------------------------------------------------+
++----------------------------------------------------------------------------------------------------------------------------------------------+
+; Assembler Generated Files                                                                                                                    ;
++----------------------------------------------------------------------------------------------------------------------------------------------+
+; File Name                                                                                                                                    ;
++----------------------------------------------------------------------------------------------------------------------------------------------+
+; /home/aluno/Imagens/matrix-coprocessor-arm-cortex-a9-2.0-Atual_BLESSED/matrix-coprocessor-arm-cortex-a9-2.0-main/output_files/soc_system.sof ;
++----------------------------------------------------------------------------------------------------------------------------------------------+
 
 
 +------------------------------------------+
@@ -78,8 +78,8 @@ https://fpgasoftware.intel.com/eula.
 +----------------+-------------------------+
 ; Option         ; Setting                 ;
 +----------------+-------------------------+
-; JTAG usercode  ; 0x0287E38F              ;
-; Checksum       ; 0x0287E38F              ;
+; JTAG usercode  ; 0x060D143C              ;
+; Checksum       ; 0x060D143C              ;
 +----------------+-------------------------+
 
 
@@ -89,15 +89,15 @@ https://fpgasoftware.intel.com/eula.
 Info: *******************************************************************
 Info: Running Quartus Prime Assembler
     Info: Version 23.1std.0 Build 991 11/28/2023 SC Lite Edition
-    Info: Processing started: Thu May 22 15:51:38 2025
+    Info: Processing started: Fri May 23 11:39:51 2025
 Info: Command: quartus_asm --read_settings_files=off --write_settings_files=off soc_system -c soc_system
 Warning (18236): Number of processors has not been specified which may cause overloading on shared machines.  Set the global assignment NUM_PARALLEL_PROCESSORS in your QSF to an appropriate value for best performance.
 Info (115030): Assembler is generating device programming files
 Info (11878): Hard Processor Subsystem configuration has not changed and a Preloader software update is not required
 Info: Quartus Prime Assembler was successful. 0 errors, 1 warning
-    Info: Peak virtual memory: 607 megabytes
-    Info: Processing ended: Thu May 22 15:51:45 2025
-    Info: Elapsed time: 00:00:07
-    Info: Total CPU time (on all processors): 00:00:06
+    Info: Peak virtual memory: 940 megabytes
+    Info: Processing ended: Fri May 23 11:40:03 2025
+    Info: Elapsed time: 00:00:12
+    Info: Total CPU time (on all processors): 00:00:12
 
 
