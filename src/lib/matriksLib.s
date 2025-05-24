@@ -76,40 +76,40 @@
 start_program:
     PUSH {R1-R10, lr} @ Salva os registradores que devem ser preservados e o Registrador de retorno (lr)
 
-    LDR r0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
+    LDR R0,=dev_mem @ Utiliza o dev/mem para acessar a memória física
     MOV R1, #2 @ "open for read and write"
-    MOV r7, #OPEN
+    MOV R7, #OPEN
     SVC #0
-    MOV R10, r0 @ Salva o File Descriptor
+    MOV R10, R0 @ Salva o File Descriptor
     
-    CMP r0, #0
+    CMP R0, #0
     BLT mmap_fail @ Caso haja algum erro no mapeamento, encerra o programa
 
     @ Mapeamento da memória
-    MOV r0, #0 @ Kernel escolhe qual endereço utilizar
+    MOV R0, #0 @ Kernel escolhe qual endereço utilizar
     LDR R1, =PAGE_SIZE @ Tamanho do mapeamento = 4096b
-    MOV r2, #3
-    MOV r3, #MAP_SHARED
-    MOV r4, R10 @ File descriptor do /dev/mem
-    LDR r5,=FPGA_BRIDGE_PHYS @ Endereço físico base
-    MOV r7, #MMAP
+    MOV R2, #3
+    MOV R3, #MAP_SHARED
+    MOV R4, R10 @ File descriptor do /dev/mem
+    LDR R5,=FPGA_BRIDGE_PHYS @ Endereço físico base
+    MOV R7, #MMAP
     SVC #0
 
-    CMP r0, #MAP_FAILED
+    CMP R0, #MAP_FAILED
     beq mmap_fail
     LDR R1, =axi_lw_adrss
-    STR r0, [R1] @ Endereço virtual mapeado colocado na variàvel
+    STR R0, [R1] @ Endereço virtual mapeado colocado na variàvel
        
     POP {R1-R10, lr} @ Restaura registradores e retorna para o antigo lr
     BX lr
 
 mmap_fail:
-    MOV r0, #STDO @standard output
+    MOV R0, #STDO @standard output
     LDR R1,=mmap_error @ Guarda valor da string
-    LDR r2,=len1
-    MOV r7, #WRITE @ Syscall: write
+    LDR R2,=len1
+    MOV R7, #WRITE @ Syscall: write
     SVC #0
-    MOV r7, #EXIT @ Syscall: exit
+    MOV R7, #EXIT @ Syscall: exit
     SVC #0
 
 
