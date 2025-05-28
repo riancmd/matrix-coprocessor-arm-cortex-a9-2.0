@@ -12,7 +12,6 @@ Para obter mais informações sobre o coprocessador aritmético, acesse o [repos
 * [Sobre o coprocessador](#-sobre-o-coprocessador)
 * [Pré-requisitos](#-pré-requisitos)
 * [Como instalar?](#-como-instalar)
-* [Requisitos do problema](#-requisitos-do-problema)
 * [Recursos utilizados](#-recursos-utilizados)
 * [Metodologia](#-metodologia)
   * [Comunicação HPS-FPGA e mapeamento de memória](#-comunicação-HPS-FPGA-e-mapeamento-de-memória)
@@ -45,8 +44,6 @@ O [coprocessador aritmético de matrizes](https://github.com/riancmd/matrix-copr
 * Vai em **Tools** > **Programmer**.
 * Clique em Hardware Setup pra garantir que o Quartus achou sua placa.
 * Depois, carregue o arquivo `.sof` gerado e clique em **Start**.
-
-## 📃 Requisitos do problema
 
 
 ## 📦 Recursos utilizados
