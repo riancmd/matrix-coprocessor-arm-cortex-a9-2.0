@@ -135,7 +135,7 @@ O sistema operacional Linux no HPS é responsável por rodar o programa que inte
 ## 📚 A biblioteca
 
 
-## 💻 Programa principal]
+## 💻 Programa principal
 
 
 ## Testes
