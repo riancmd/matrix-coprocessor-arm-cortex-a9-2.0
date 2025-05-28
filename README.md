@@ -2,28 +2,35 @@
 
 **Matriks** é uma biblioteca em Assembly desenvolvida para facilitar a comunicação entre o processador ARM Cortex-A9 (rodando Linux) da plataforma DE1-SoC e um coprocessador aritmético para matrizes implementado na Intel FPGA em Verilog.
 
-O coprocessador é capaz de performar operações básicas entre matrizes quadradas de n <= 5 (operações como soma, subtração, multiplicação por escalar ou outra matriz, determinante, oposta...). A biblioteca possui um conjunto de funções em Assembly que permitem ao usuário enviar dados, realizar operações e receber os resultados por meio de um mapeamento de memória.
+O coprocessador é capaz de performar operações básicas entre matrizes quadradas de n <= 5 (operações como soma, subtração, multiplicação por escalar ou outra matriz, determinante, oposta e transposta). A biblioteca possui um conjunto de funções em Assembly que permitem ao usuário enviar dados, realizar operações e receber os resultados por meio de um mapeamento de memória.
 
-Para obter mais informações sobre o coprocessador aritmético, acesse o repositório matrix-coprocessor-arm-cortex-a9.
+Para obter mais informações sobre o coprocessador aritmético, acesse o [repositório](https://github.com/riancmd/matrix-coprocessor-arm-cortex-a9).
 
 ## 🚀 Sumário
 
 * [Introdução](#-introdução)
+* [Sobre o coprocessador](#-sobre-o-coprocessador)
 * [Pré-requisitos](#-requisitos)
 * [Como instalar?](#-como-instalar)
 * [Requisitos do problema](#-requisitos-do-problema)
 * [Recursos utilizados](#-recursos-utilizados)
 * [Metodologia](#metodologia)
-  * [Unidade de controle](#-unidade-de-controle)
+  * [Comunicação HPS-FPGA e mapeamento de memória](#-comunicação-HPS--FPGA-e-mapeamento-de-memória)
 * [Testes](#-testes)
   * [Como realizar testes?](#-como-realizar-testes)
-* [Como utilizar o coprocessador?](#-como-utilizar-o-coprocessador)
+  * [Casos de teste](#-casos-de-teste)
+* [Como utilizar a biblioteca?](#-como-utilizar-o-coprocessador)
 * [Conclusão](#-conclusão)
 * [Referências](#-referências)
 * [Colaboradores](#-colaboradores)
 
 ## 🧠 Introdução
 Os anananannanaana
+
+## 👨‍💻 Sobre o coprocessador
+Para utilizar a biblioteca Matriks, é necessário ter o coprocessador aritmético para matrizes implementado na FPGA do kit DE1-SoC. Caso contrário, não será possível utilizá-la, pois a biblioteca depende do processamento das instruções pelo coprocessador.
+
+O [coprocessador aritmético de matrizes](https://github.com/riancmd/matrix-coprocessor-arm-cortex-a9), desenvolvido para trabalhar em conjunto com o processador ARM Cortex A9, foi implementado em Verilog e possui toda sua documentação disponível no repositório linkado. Entretanto, junto a este repositório, há uma versão atualizada do coprocessador para trabalhar em conjunto com a biblioteca. Portanto, **a biblioteca deve ser usada junto à nova versão do coprocessador**. A versão 2.0 do coprocessador possui modificações para conserto de alguns bugs, além da adição de novos módulos para a lógica de comunicação entre o HPS (o processador) e o coprocessador na FPGA.
 
 # 🔧 Como instalar?
 * Faça o download do projeto como arquivo `.zip` e extraia a pasta matrix-coprocessor-arm-cortex-a9.
@@ -51,4 +58,3 @@ Os anananannanaana
 ## 👥 Colaboradores
 * **Rian da Silva Santos** -  [Rian](https://github.com/riancmd)
 * **Victor Ariel Matos Menezes** - [Victor](https://github.com/VitrolaVT)
-* **Edgar Rodrigo Rocha Silva** - [Edgar](https://github.com/Edgardem)
