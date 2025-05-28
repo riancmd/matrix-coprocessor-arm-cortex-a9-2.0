@@ -32,7 +32,10 @@ Para utilizar a biblioteca Matriks, é necessário ter o coprocessador aritméti
 
 O [coprocessador aritmético de matrizes](https://github.com/riancmd/matrix-coprocessor-arm-cortex-a9), desenvolvido para trabalhar em conjunto com o processador ARM Cortex A9, foi implementado em Verilog e possui toda sua documentação disponível no repositório linkado. Entretanto, junto a este repositório, há uma versão atualizada do coprocessador para trabalhar em conjunto com a biblioteca. Portanto, **a biblioteca deve ser usada junto à nova versão do coprocessador**. A versão 2.0 do coprocessador possui modificações para conserto de alguns bugs, além da adição de novos módulos para a lógica de comunicação entre o HPS (o processador) e o coprocessador na FPGA.
 
-# 🔧 Como instalar?
+## Pré-requisitos
+
+
+## 🔧 Como instalar?
 * Faça o download do projeto como arquivo `.zip` e extraia a pasta matrix-coprocessor-arm-cortex-a9.
 * Abra o **Quartus Prime**.
 * Vá em **File** > **Open Project**.
@@ -42,6 +45,32 @@ O [coprocessador aritmético de matrizes](https://github.com/riancmd/matrix-copr
 * Vai em **Tools** > **Programmer**.
 * Clique em Hardware Setup pra garantir que o Quartus achou sua placa.
 * Depois, carregue o arquivo `.sof` gerado e clique em **Start**.
+
+## Requisitos do problema
+
+
+## Recursos utilizados
+
+
+## Metodologia
+
+
+## Comunicação HPS-FPGA e mapeamento de memória
+
+
+## Testes
+
+
+## Como realizar testes?
+
+
+## Casos de teste
+
+
+## Como utilizar a biblioteca?
+
+
+## Conclusão
 
 
 ## 📚 Referências
