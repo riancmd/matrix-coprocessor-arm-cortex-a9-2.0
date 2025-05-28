@@ -8,7 +8,6 @@ Para obter mais informações sobre o coprocessador aritmético, acesse o [repos
 
 ## 🚀 Sumário
 
-* [Introdução](#-introdução)
 * [Sobre o coprocessador](#-sobre-o-coprocessador)
 * [Pré-requisitos](#-pré-requisitos)
 * [Como instalar?](#-como-instalar)
@@ -27,9 +26,6 @@ Para obter mais informações sobre o coprocessador aritmético, acesse o [repos
 * [Conclusão](#conclusão)
 * [Referências](#-referências)
 * [Colaboradores](#-colaboradores)
-
-## 🧠 Introdução
-Os anananannanaana
 
 ## 👨‍💻 Sobre o coprocessador
 Para utilizar a biblioteca Matriks, é necessário ter o coprocessador aritmético para matrizes implementado na FPGA do kit DE1-SoC. Caso contrário, não será possível utilizá-la, pois a biblioteca depende do processamento das instruções pelo coprocessador.
