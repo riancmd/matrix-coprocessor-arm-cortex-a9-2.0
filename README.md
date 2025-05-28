@@ -10,17 +10,17 @@ Para obter mais informações sobre o coprocessador aritmético, acesse o [repos
 
 * [Introdução](#-introdução)
 * [Sobre o coprocessador](#-sobre-o-coprocessador)
-* [Pré-requisitos](#-requisitos)
+* [Pré-requisitos](#-pré-requisitos)
 * [Como instalar?](#-como-instalar)
 * [Requisitos do problema](#-requisitos-do-problema)
 * [Recursos utilizados](#-recursos-utilizados)
-* [Metodologia](#metodologia)
-  * [Comunicação HPS-FPGA e mapeamento de memória](#-comunicação-HPS--FPGA-e-mapeamento-de-memória)
-* [Testes](#-testes)
-  * [Como realizar testes?](#-como-realizar-testes)
-  * [Casos de teste](#-casos-de-teste)
-* [Como utilizar a biblioteca?](#-como-utilizar-o-coprocessador)
-* [Conclusão](#-conclusão)
+* [Metodologia](#-metodologia)
+  * [Comunicação HPS-FPGA e mapeamento de memória](#-comunicação-HPS-FPGA-e-mapeamento-de-memória)
+* [Testes](#testes)
+  * [Como realizar testes?](#como-realizar-testes)
+  * [Casos de teste](#casos-de-teste)
+* [Como utilizar a biblioteca?](#como-utilizar-o-coprocessador)
+* [Conclusão](#conclusão)
 * [Referências](#-referências)
 * [Colaboradores](#-colaboradores)
 
@@ -32,7 +32,7 @@ Para utilizar a biblioteca Matriks, é necessário ter o coprocessador aritméti
 
 O [coprocessador aritmético de matrizes](https://github.com/riancmd/matrix-coprocessor-arm-cortex-a9), desenvolvido para trabalhar em conjunto com o processador ARM Cortex A9, foi implementado em Verilog e possui toda sua documentação disponível no repositório linkado. Entretanto, junto a este repositório, há uma versão atualizada do coprocessador para trabalhar em conjunto com a biblioteca. Portanto, **a biblioteca deve ser usada junto à nova versão do coprocessador**. A versão 2.0 do coprocessador possui modificações para conserto de alguns bugs, além da adição de novos módulos para a lógica de comunicação entre o HPS (o processador) e o coprocessador na FPGA.
 
-## Pré-requisitos
+## 📄 Pré-requisitos
 
 
 ## 🔧 Como instalar?
@@ -46,16 +46,16 @@ O [coprocessador aritmético de matrizes](https://github.com/riancmd/matrix-copr
 * Clique em Hardware Setup pra garantir que o Quartus achou sua placa.
 * Depois, carregue o arquivo `.sof` gerado e clique em **Start**.
 
-## Requisitos do problema
+## 📃 Requisitos do problema
 
 
-## Recursos utilizados
+## 📦 Recursos utilizados
 
 
-## Metodologia
+## 🔨 Metodologia
 
 
-## Comunicação HPS-FPGA e mapeamento de memória
+## 🗣 Comunicação HPS-FPGA e mapeamento de memória
 
 
 ## Testes
@@ -75,14 +75,18 @@ O [coprocessador aritmético de matrizes](https://github.com/riancmd/matrix-copr
 
 ## 📚 Referências
 * Patterson, D. A. ; Hennessy, J. L. 2016. Morgan Kaufmann Publishers. Computer organization and design: ARM edition. 5ª edição.
-* GEKSFORGEEKS. Co-processor in Computer Architecture. Disponível em: https://www.geeksforgeeks.org/co-processor-computer-architecture/. 
 
 * INTEL CORPORATION. Intel 8087 Numeric Data Processor: User’s Manual. Disponível em: https://datasheets.chipdb.org/Intel/x86/808x/datashts/8087/205835-007.pdf. 
 
-* PANTUZA, J. Organização e arquitetura de computadores: pipeline em processadores. Disponível em: https://blog.pantuza.com/artigos/organizacao-e-arquitetura-de-computadores-pipeline-em-processadores. 
+* REFERENCIA DO ASSEMBLY Q ESQUECI O LINK
 
-* FPGA TUTORIAL. How to write a basic Verilog Testbench. Disponível em: https://fpgatutorial.com/how-to-write-a-basic-verilog-testbench/.
+* REFERENCIA DO QSYS COLCOAR LINK
 
+* REFERENCIA DO PIO COLOCAR LINK
+
+* REFERENCIA DO C COLOCAR LINK
+
+* REFERENCIA DO ARMV7 ASSEMBLY LINK
 
 ## 👥 Colaboradores
 * **Rian da Silva Santos** -  [Rian](https://github.com/riancmd)
