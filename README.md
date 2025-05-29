@@ -269,12 +269,12 @@ A lógica aqui implementada trata os dados das matrizes antes de enviá-los às 
 * O tratamento de dados utiliza uma lógica que preenche a matriz 5x5 correspondente às matrizes menores com 0s onde não haveria dados. Dessa forma, os dados são uniformizados e apenas um tipo de loop é criado no programa;
 * Assim, o envio e recebimento de dados utiliza for loops que iteram, respectivamente, 13 e 7 vezes para enviar e receber matrizes. O envio é de 2 em 2 bytes. O recebimento é de 4 em 4 bytes.
 
-
 ## Testes
+Inicialmente, os testes realizados buscaram verificar o mapeamentod e memória utilizando as PIOs. Para isso, um módulo somador de teste foi utilizado. Esse módulo buscava abstrair o coprocessador aritmético numa simples unidade lógico-aritmética que realizava a operação única de soma. Eram utilizadas menos PIOs do que no projeto atual.
 
+Os testes procederam-se com as funções start_program, exit_program e uma versão inicial das funções de envio e recebimento. Dado o êxito dos testes, elas serviram de base para as funções atuais, sendo o circuito somador um passo essencial no desenvolvimento do projeto.
 
-## Casos de teste
-
+Por fim, o teste para envio e recebimento de dados com as funções atuais utilizou uma matriz 2x2, inicialmente. Assim, verificou-se que todas as funções estavam funcionando corretamente e foi possível realizar as 7 diferentes operações que o coprocessador aritmético é capaz de realizar.
 
 ## Como utilizar a biblioteca?
 Para utilizar a biblioteca `matriksLib.s` no seu projeto, siga estes passos: 
@@ -285,7 +285,7 @@ Para utilizar a biblioteca `matriksLib.s` no seu projeto, siga estes passos:
 A header `matriksLib.h` fornece os protótipos das funções Assembly (como `operate_buffer_send()` e `calculate_matriz()`), permitindo chamá-las diretamente do C após a vinculação. O Makefile do projeto já automatiza esse processo com os targets `compile` e `run`, então é possível, também, apenas modificar o makefile para incluir seu projeto ao invés da "main.c". Ou, também, criar um novo makefile.
 
 ## Conclusão
-
+A biblioteca `Matriks` tem um alto potencial de uso junto ao coprocessador aritmético de matrizes, especialmente em aplicações para computação visual ou inteligência artificial, além de muitas outras possibilidades. Ela permite que o processamento de dados seja feito num coprocessador exclusivo que, futuramente, pode ser expandido para abarcar uma maior capacidade no aspecto do hardware.
 
 ## 📚 Referências
 * Patterson, D. A. ; Hennessy, J. L. 2016. Morgan Kaufmann Publishers. Computer organization and design: ARM edition. 5ª edição.
