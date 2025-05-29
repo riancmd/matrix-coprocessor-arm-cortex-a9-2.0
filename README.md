@@ -13,9 +13,8 @@ Para obter mais informações sobre o coprocessador aritmético, acesse o [repos
 * [Como instalar?](#-como-instalar)
 * [Recursos utilizados](#-recursos-utilizados)
 * [Metodologia](#-metodologia)
-  * [Mapeamento de memória](#-mapeamento-de-memória)
   * [Comunicação HPS-FPGA](#-comunicação-HPS-FPGA)
-  * [Remoção de lixo](#-remoção-de-lixo)
+  * [Remoção de módulos desnecessários](#-Remoção-de-módulos-desnecessários)
   * [Criação de novas instruções na FPGA](#-as-novas-instruções)
   * [A biblioteca](#-a-biblioteca)
   * [Programa principal](#-programa-principal)
@@ -118,18 +117,65 @@ O sistema operacional Linux no HPS é responsável por rodar o programa que inte
 ---
 
 ## 🔨 Metodologia
-
-
-## 🗺 Mapeamento de memória
-
+A atualização do projeto consistiu em realizar 3 etapas básicas: I - Modificações nos módulos criados no projeto 1 para acomodar os novos requisitos; II - Criação da biblioteca assembly para o processador enviar instruções ao coprocessador; III - Interface em C entre a biblioteca e o usuário.
+Os subtópicos "Comunicação HPS-FPGA", "Remoção de módulos desnecessários" e "Criação de novas instruções na FPGA" elencam os passos feitos na primeira etapa, já o subtópico "A biblioteca" explica a realização da segunda etapa e por fim, o subtópico "Programa principal" corresponde a terceira etapa.
 
 ## 🗣 Comunicação HPS-FPGA
+Na placa DE1-SoC existem 2 escopos principais, o HPS, contendo o processador ARMv7 e o sistema operacional Linux, e a parte do FPGA, a parte programável via Quartus. Contudo, entre essas 2 partes da placa, há uma conexão que permite enviar e receber dados, conhecida como ponte AXI, e por meio de criação de interfaces de comunicação, que correspondem a periféricos criados na FPGA, pode-se então ter controle de forma os quais dados são enviados para FPGA e lidos da FPGA através do HPS.
+A criação desses periféricos ocorre através da ferramenta do Quartus *Platform Designer*, também conhecido como *QSYS*, uma ferramenta que permite criar sistemas robustos a partir da conexão personalizada de componentes de processadores, memória, periféricos, barramentos, entre outros, a partir da adição deles no ambiente de design e a configuração de como eles devem se relacionar. Dessa forma, pode criar o componente HPS referente ao processador e os periféricos de comunicação que usarão a interface AXI.
+O periférico usado para essa nova etapa do projeto foi o *PIO*, *Parallel Input/Output*, que contém largura de dados de 1 até 32 bits para serem enviados do HPS para FPGA ou lidos da FPGA para o HPS. Elas ficam conectadas ao barramento AXI de interconexão, em específico, conecatado ao *LightWeight Brigde*, uma ponte AXI mais simples que permite transferir dados de 32 bits.
+
+Para o projeto, foram usados 3 PIOs, um configurado como *Output* de 32 bits, logo o HPS envia dados para esse PIO e na FPGA, via Verilog, a saída do módulo contendo esse periférico é tratado como um sinal de entrada (Input) para os módulos criados (Control Unit), o segundo PIO foi um de 32 bits de *Input*, logo o módulo de controle possui a saída de largura de 32 bits há a conexão dos fios que saem desse módulo e entram na conexão do módulo que possuem esse segundo PIO, e por fim o terceiro PIO possui apenas 2 bits de largura, sendo configurado como *Input* e serve como bit de controle do FPGA para o HPS e bit de overflow de uma operação. Abaixo, há uma tabela contendo mais detalhes do funcionamento desses PIOs:
 
 
-## 🚮 Remoção de lixo
+| **PIOs**       | **Largura** | **Endereço (offset)** | **Direção** | **Funcionalidade**                    |
+|----------------|-------------|------------------------|-------------|---------------------------------------|
+| `PIO_Coprocessor_Instruction`        | 32 bits      | `0x0000`                 | Output (HPS->FPGA)       | Recebe instrução da HPS contendo 16 bits para 2 números de 8 bits cada, Opcode de 4 bits, tamanho de matriz de 2 bits, posição para armazenar e ler de 4 bits e 1 bit de sinal (Os outros 5 bits são ignorados)             |
+| `PIO_Data_Out`        | 32 bits      | `0x0010`                 | Input(FPGA->HPS)       | Contém 4 números de 8 bits cada que será retornados da FPGA para o HPS para serem armazenados como resultado da operação             |
+| `PIO_Ready_Signals`   | 2 bits      | `0x0020`                 | Input(FPGA->HPS)         | Possui um bit de *ready* (pront0) da FPGA indicando a finalização de uma operação solicitada pela HPS e um bit indicando *overflow* da operação.      |
 
+Uma vez configurado os PIOs no *QSYS*, gera-se então o Verilog correspondente, que é instanciado no *Top-Level* do projeto e os fios dos PIOs do módulo são conectados ao módulo de controle (Control Unit).
+
+## 🚮 Remoção de módulos desnecessários
+Uma vez criado os periféricos de interconexão, o próximo passo foi atualizar a unidade de controle criado no projeto 1 para acomodar as novas implementações e descartar componentes e configurações antigas.
+### Remoções:
+  - Foram removidos os módulos de *Interface* (Top-Level) e de memória (*Memory*) junto com os arquivos de configuração do *On-Chip-Memory* usado no projeto 1;
+  - Foi removido o uso do clock sendo uma simulação através do aperto sequencial do botão na placa;
+  - Alguns sinais de entrada e saída do *control_unit* foram removidas;
+  - Remoção do estado de limpeza *CLN* da máquina de estados e de algumas funcionalidades não mais necessárias dentro de um estado.
+
+### Adições
+- Foi adicionado o clock de 50 Mhz da placa como sendo o clock da máquina de estados da unidade de controle - Objetivo inicial não implementado no problema 1;
+- A unidade de controle recebe uma instrução de 32 bits e retorna 32 bits de dados, além dos sinais de ready e overflow já existentes;
+- Acréscimo de bits na instrução: 16 bits para 2 números, 1 bit a mais para Opcode, uma vez que agora há mais 3 operações possíveis de serem realizadas, 4 bits de posição e 1 bit de start da operação;
+- Adição de 3 novas operações que podem ser realizadas pelo coprocessador, que serão explicadas no próximo subtópico.
 
 ## 👩‍💻 Criação de novas instruções na FPGA
+Como já mencionado a instrução agora do coprocessador possui 32 bits, 5 sendo ignorados e 27 funcinais com significado na decodificação, a nova estrutura ficou da seguinte forma:
+
+| **Posição dos Bits** | **Significado**                      |
+|----------------------|--------------------------------------|
+| [0]                  | Sinal de start da operação           |
+| [4:1]                  | Posição para escrever ou ler no buffer(registrador)|
+| [6:5]                  | Tamanho da matriz       |
+| [10:7]                  | Opcode da operação                 |
+| [26:11]                  | Números A e B (8 bits cada)            |
+
+Além disso, foi adicionado 3 novas operações: **STORE_MATRIX1**, **STORE_MATRIX2** e **LOAD_MATRIXR**. Sendo as 2 primeiras responsáveis de armazenar 2 números contidos no campo de números da instrução na posição dada pelo campo *Position* da instrução dentro do buffer, que é um registrador de 200 bits, um registrador para matrizA e um para matriz B. Já a instrução de load usa a posição para ler de um buffer/registrador de 200 bits que armazena o resultado da operação, e com base na posição retorna 32 bits (4 números de 1 byte) para o HPS através do PIO correspondente. A tabela a seguir apresenta como cada Opcode trabalha com os outros campos da instrução.
+
+
+| **OPCODE** | **Operação**                | **Números A e B**                                   | **Tamanho da Matriz**                                                             | **Posição**                                                | **Funcionalidade**                                                                                  |
+|------------|-----------------------------|-----------------------------------------------------|------------------------------------------------------------------------------------|-------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
+| `0000`     | Soma                        | Não usa esse campo                                  | Não usa esse campo                                                                 | Não usa esse campo                                           | Soma de duas matrizes                                                                                |
+| `0001`     | Subtração                   | Não usa esse campo                                  | Não usa esse campo                                                                 | Não usa esse campo                                           | Subtrai matriz A da matriz B                                                                        |
+| `0010`     | Multiplicação de matrizes   | Não usa esse campo                                  | Não usa esse campo                                                                 | Não usa esse campo                                           | Multiplica matrizes A e B                                                                           |
+| `0011`     | Multiplicação por inteiro   | Não usa esse campo                                  | Não usa esse campo                                                                 | Não usa esse campo                                           | Multiplica matriz A por um inteiro                                                                  |
+| `0100`     | Determinante                | Não usa esse campo                                  | Usa para decidir qual determinante usar (Det2x2, Det3x3, Det4x4 ou Det5x5)         | Não usa esse campo                                           | Calcula a determinante da matriz com base no tamanho                                                |
+| `0101`     | Transposta                  | Não usa esse campo                                  | Não usa esse campo                                                                 | Não usa esse campo                                           | Calcula transposta da matriz A                                                                      |
+| `0110`     | Oposta                      | Não usa esse campo                                  | Não usa esse campo                                                                 | Não usa esse campo                                           | Calcula oposta da matriz A                                                                          |
+| `0111`     | Store_matrix1               | Usa para guardar 2 valores                          | Não usa esse campo                                                                 | Usado para guardar os números em certo offset do buffer/registrador     | Salva os 2 números no campo da instrução em certo offset dado pelo campo da posição dentro do registrador da matriz A |
+| `1000`     | Store_matrix2               | Usa para guardar 2 valores                          | Não usa esse campo                                                                 | Usado para guardar os números em certo offset do buffer/registrador     | Salva os 2 números no campo da instrução em certo offset dado pelo campo da posição dentro do registrador da matriz B |
+| `1001`     | Load_matrixR                | Não usa esse campo                                  | Não usa esse campo                                                                 | Usado para ler os bits armazenados no buffer/registrador com base no offset da posição       | Retorna para HPS 32 bits presentes no registrador de resultado com base no offset dado pelo campo da posição          |
 
 
 ## 📚 A biblioteca
