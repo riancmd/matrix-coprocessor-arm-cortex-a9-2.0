@@ -112,7 +112,7 @@ Ferramenta oficial da Intel para desenvolvimento com FPGAs. Permite a criação 
 
 ### 🐧 DE1-SoC-UP Linux
 
-O sistema operacional DE1-SoC-UP Linux é a d stribuição específica do HPS da DE1-SoC, responsável por rodar o programa que interage com o coprocessador implementado na FPGA através da biblioteca Assembly.
+O sistema operacional DE1-SoC-UP Linux é a distribuição específica do HPS da DE1-SoC, responsável por rodar o programa que interage com o coprocessador implementado na FPGA através da biblioteca Assembly.
 
 ---
 
@@ -154,7 +154,7 @@ Uma vez criado os periféricos de interconexão, o próximo passo foi atualizar 
 - Adição de 3 novas operações que podem ser realizadas pelo coprocessador, que serão explicadas no próximo subtópico.
 
 ## 👩‍💻 Criação de novas instruções na FPGA
-Como já mencionado a instrução agora do coprocessador possui 32 bits, 5 sendo ignorados e 27 funcinais com significado na decodificação, a nova estrutura ficou da seguinte forma:
+Como já mencionado a instrução agora do coprocessador possui 32 bits, 5 sendo ignorados e 27 funcionais com significado na decodificação, a nova estrutura ficou da seguinte forma:
 
 | **Posição dos Bits** | **Significado**                      |
 |----------------------|--------------------------------------|
@@ -184,7 +184,7 @@ Além disso, foi adicionado 3 novas operações: **STORE_MATRIX1**, **STORE_MATR
 ## 📚 Biblioteca
 A biblioteca `Matriks` foi escrita em Assembly para ARMv7 e serve como interface entre o processador (HPS) da DE1-SoC e o coprocessador de operações com matrizes implementado em Verilog na FPGA . Ela abstrai os detalhes da comunicação com a FPGA e fornece um conjunto de funções que facilitam o envio e o recebimento de dados, bem como o controle das operações aritméticas.
 
-A criação da biblioteca foi baseada nas PIOs presentes no projeto do coprocessador no Quartus, explicadas alguns [tópicos acima](#-comunicação-HPS-FPGA), mapeandoo os registradores da FPGA na memória virtual do Linux através do /dev/mem.
+A criação da biblioteca foi baseada nas PIOs presentes no projeto do coprocessador no Quartus, explicadas alguns [tópicos acima](#-comunicação-HPS-FPGA), mapeando os registradores da FPGA na memória virtual do Linux através do /dev/mem.
 
 ### 🔧 Como funciona a biblioteca?
 
