@@ -266,17 +266,20 @@ A lógica aqui implementada trata os dados das matrizes antes de enviá-los às 
 * O tratamento de dados utiliza uma lógica que preenche a matriz 5x5 correspondente às matrizes menores com 0s onde não haveria dados. Dessa forma, os dados são uniformizados e apenas um tipo de loop é criado no programa;
 * Assim, o envio e recebimento de dados utiliza for loops que iteram, respectivamente, 13 e 7 vezes para enviar e receber matrizes. O envio é de 2 em 2 bytes. O recebimento é de 4 em 4 bytes.
 
+
 ## Testes
-
-
-## Como realizar testes?
 
 
 ## Casos de teste
 
 
 ## Como utilizar a biblioteca?
+Para utilizar a biblioteca `matriksLib.s` no seu projeto, siga estes passos: 
+* **1) Monte** o código Assembly com `as -c lib/matriksLib.s -o lib/matriksLib.o`
+* **2) Compile** seu código C (e `functions.c` se necessário) com a flag `-I./lib` para incluir o diretório da header (`gcc -c main.c -o main.o -I./lib`)
+* **3) Linke** todos os objetos (`matriksLib.o`, `functions.o` e `main.o`) com `gcc -o main`.
 
+A header `matriksLib.h` fornece os protótipos das funções Assembly (como `operate_buffer_send()` e `calculate_matriz()`), permitindo chamá-las diretamente do C após a vinculação. O Makefile do projeto já automatiza esse processo com os targets `compile` e `run`, então é possível, também, apenas modificar o makefile para incluir seu projeto ao invés da "main.c". Ou, também, criar um novo makefile.
 
 ## Conclusão
 
