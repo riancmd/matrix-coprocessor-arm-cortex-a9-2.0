@@ -21,8 +21,6 @@ Para obter mais informações sobre o coprocessador aritmético, acesse o [repos
   * [Biblioteca](#-biblioteca)
   * [Programa principal](#-programa-principal)
 * [Testes](#testes)
-  * [Como realizar testes?](#como-realizar-testes)
-  * [Casos de teste](#casos-de-teste)
 * [Como utilizar a biblioteca?](#como-utilizar-o-coprocessador)
 * [Conclusão](#conclusão)
 * [Referências](#-referências)
@@ -112,9 +110,9 @@ Ferramenta oficial da Intel para desenvolvimento com FPGAs. Permite a criação 
 
 [Site Oficial do Software](https://www.intel.com.br/content/www/br/pt/products/details/fpga/development-tools/quartus-prime.html)
 
-### 🐧 Sistema Linux no HPS (CORRIGIRRRRRR distribuição)
+### 🐧 DE1-SoC-UP Linux
 
-O sistema operacional Linux no HPS é responsável por rodar o programa que interage com o coprocessador implementado na FPGA através da biblioteca Assembly.
+O sistema operacional DE1-SoC-UP Linux é a d stribuição específica do HPS da DE1-SoC, responsável por rodar o programa que interage com o coprocessador implementado na FPGA através da biblioteca Assembly.
 
 ---
 
@@ -292,15 +290,9 @@ A biblioteca `Matriks` tem um alto potencial de uso junto ao coprocessador aritm
 
 * INTEL CORPORATION. Intel 8087 Numeric Data Processor: User’s Manual. Disponível em: https://datasheets.chipdb.org/Intel/x86/808x/datashts/8087/205835-007.pdf. 
 
-* REFERENCIA DO ASSEMBLY Q ESQUECI O LINK
+* INTEL CORPORATION. Qsys System Design Tutorial. Disponível em: https://www.intel.com/content/www/us/en/docs/programmable/683378/current/qsys-system-design-tutorial.html
 
-* REFERENCIA DO QSYS COLCOAR LINK
-
-* REFERENCIA DO PIO COLOCAR LINK
-
-* REFERENCIA DO C COLOCAR LINK
-
-* REFERENCIA DO ARMV7 ASSEMBLY LINK
+* ARMV7 Quick Reference. Disponível em: https://courses.cs.washington.edu/courses/cse469/20wi/armv7.pdf
 
 ## 👥 Colaboradores
 * **Rian da Silva Santos** -  [Rian](https://github.com/riancmd)
