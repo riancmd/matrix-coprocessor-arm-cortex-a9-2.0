@@ -222,6 +222,16 @@ A biblioteca realiza, em geral, 6 ações, incluindo: inicializar o mapeamento d
 - **`signal_overflow()`**  
   Verifica se houve overflow na última operação. Retorna 1 em caso de overflow e 0 caso contrário.
 
+### Tabela compacta de funções
+| Função                    | Argumentos                          | Bits por Argumento (Total) | Descrição                                                                 |
+|---------------------------|-------------------------------------|----------------------------|---------------------------------------------------------------------------|
+| `start_program`           | `void`                              | -                          | Inicializa o programa e mapeia os endereços dos PIOs                      |
+| `exit_program`            | `void`                              | -                          | Finaliza o programa e desmapeia a memória                                 |
+| `operate_buffer_send`     | `(opcode, size, position, matriz)` | **Instrução (32 bits):**<br>- 8 bits N1<br>- 8 bits N2<br>- 4 bits Opcode<br>- 2 bits Size<br>- 3 bits Position<br>- 1 bit Start<br>- 6 bits não utilizados | Envia 2 elementos da matriz por vez para o coprocessador                  |
+| `calculate_matriz`        | `(opcode, size, position)`         | **Instrução (32 bits):**<br>- 4 bits Opcode<br>- 2 bits Size<br>- 3 bits Position<br>- 1 bit Start<br>- 22 bits não utilizados | Inicia uma operação matricial no coprocessador                            |
+| `operate_buffer_receive`  | `(opcode, size, position, matriz)` | **Retorno (32 bits):**<br>- 4 valores de 8 bits cada (total 32 bits)       | Recebe 4 elementos da matriz resultante por vez do coprocessador          |
+| `signal_overflow`         | `void`                              | **Sinal (1 bit):**<br>- 1 bit Overflow (bit 0 do PIO3)                    | Verifica se ocorreu overflow na última operação                           |
+
 ---
 
 ### ✏️ Exemplo de uso
@@ -237,7 +247,24 @@ A biblioteca realiza, em geral, 6 ações, incluindo: inicializar o mapeamento d
 
 
 ## 💻 Programa principal
+### Visão Geral
+O programa principal (`main.c`) atua como a interface de usuário para a biblioteca Matriks, permitindo operações matriciais através do coprocessador aritmético implementado em Verilog. O código é escrito em C e faz chamadas para a biblioteca em Assembly que, por sua vez, serve como ponte entre o HPS (Hard Processor System) e o coprocessador.
 
+A lógica aqui implementada trata os dados das matrizes antes de enviá-los às funções em Assembly. 
+
+> :warning: As matrizes são nxn com **apenas** números de 1 byte com sinal (ou seja, entre -128 e 127). Isso se dá pela arquitetura do coprocessador, que tem um limite de 8 bits.
+
+### `Função main()`
+* Inicializa o programa chamando showMenu(), que exibe informações visuais sobre a biblioteca e permite entrada de dados do usuário. As funções showMenu() e as demais foram implementadas na biblioteca functions.c e prototipadas em functions.h.
+
+### `Função showMenu()`
+* Aloca memória suficiente para as matrizes e demais variáveis temporárias;
+* Cria um loop de menu, exibindo opções e permitindo entrada do usuário.
+
+### `Função menuOperation()`
+* Função crítica no processamento dos dados das matrizes. Ela recebe os ponteiros para as matrizes e matriz resultante e seleciona entre as 7 operações disponíveis;
+* O tratamento de dados utiliza uma lógica que preenche a matriz 5x5 correspondente às matrizes menores com 0s onde não haveria dados. Dessa forma, os dados são uniformizados e apenas um tipo de loop é criado no programa;
+* Assim, o envio e recebimento de dados utiliza for loops que iteram, respectivamente, 13 e 7 vezes para enviar e receber matrizes. O envio é de 2 em 2 bytes. O recebimento é de 4 em 4 bytes.
 
 ## Testes
 
