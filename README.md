@@ -136,7 +136,10 @@ Para o projeto, foram usados 3 PIOs, um configurado como *Output* de 32 bits, lo
 | `PIO_Data_Out`        | 32 bits      | `0x0010`                 | Input(FPGA->HPS)       | Contém 4 números de 8 bits cada que será retornados da FPGA para o HPS para serem armazenados como resultado da operação             |
 | `PIO_Ready_Signals`   | 2 bits      | `0x0020`                 | Input(FPGA->HPS)         | Possui um bit de *ready* (pront0) da FPGA indicando a finalização de uma operação solicitada pela HPS e um bit indicando *overflow* da operação.      |
 
-Uma vez configurado os PIOs no *QSYS*, gera-se então o Verilog correspondente, que é instanciado no *Top-Level* do projeto e os fios dos PIOs do módulo são conectados ao módulo de controle (Control Unit).
+Uma vez configurado os PIOs no *QSYS*, gera-se então o Verilog correspondente, que é instanciado no *Top-Level* do projeto e os fios dos PIOs do módulo são conectados ao módulo de controle (Control Unit). A seguir, uma imagem da ferramenta aberta e como está configurada para o projeto:
+![Qsys_imagem](img/Qsys_img.png)
+
+Em "1" há a aba de ***Ip Catalog***, onde busca-se por um componente para adicionar no sistema. Uma vez adicionado, ele aparece na aba a direita, onde configura-se as conexões do componente. Em "2" há a configuração dos 3 PIOs usados para o projeto. Uma vez configurado o sistema, clica-se no menu ***Generate*** no topo da ferramenta para gerar o Verilog.
 
 ## 🚮 Remoção de módulos desnecessários
 Uma vez criado os periféricos de interconexão, o próximo passo foi atualizar a unidade de controle criado no projeto 1 para acomodar as novas implementações e descartar componentes e configurações antigas.
