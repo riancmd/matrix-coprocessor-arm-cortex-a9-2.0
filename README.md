@@ -6,6 +6,8 @@ O coprocessador é capaz de performar operações básicas entre matrizes quadra
 
 Para obter mais informações sobre o coprocessador aritmético, acesse o [repositório](https://github.com/riancmd/matrix-coprocessor-arm-cortex-a9).
 
+> ⚠ Caso tenha interesse exclusivo em usar a biblioteca Assembly para criar seu próprio programa utilizando o coprocessador, as informações necessárias estão em [Biblioteca](#-biblioteca). Entretanto, a lógica de tratamento das matrizes no envio foi implementada parcialmente no programa em C.
+
 ## 🚀 Sumário
 
 * [Sobre o coprocessador](#-sobre-o-coprocessador)
@@ -14,9 +16,9 @@ Para obter mais informações sobre o coprocessador aritmético, acesse o [repos
 * [Recursos utilizados](#-recursos-utilizados)
 * [Metodologia](#-metodologia)
   * [Comunicação HPS-FPGA](#-comunicação-HPS-FPGA)
-  * [Remoção de módulos desnecessários](#-Remoção-de-módulos-desnecessários)
+  * [Remoção de módulos desnecessários](#-remoção-de-módulos-desnecessários)
   * [Criação de novas instruções na FPGA](#-as-novas-instruções)
-  * [A biblioteca](#-a-biblioteca)
+  * [Biblioteca](#-biblioteca)
   * [Programa principal](#-programa-principal)
 * [Testes](#testes)
   * [Como realizar testes?](#como-realizar-testes)
@@ -118,7 +120,7 @@ O sistema operacional Linux no HPS é responsável por rodar o programa que inte
 
 ## 🔨 Metodologia
 A atualização do projeto consistiu em realizar 3 etapas básicas: I - Modificações nos módulos criados no projeto 1 para acomodar os novos requisitos; II - Criação da biblioteca assembly para o processador enviar instruções ao coprocessador; III - Interface em C entre a biblioteca e o usuário.
-Os subtópicos "Comunicação HPS-FPGA", "Remoção de módulos desnecessários" e "Criação de novas instruções na FPGA" elencam os passos feitos na primeira etapa, já o subtópico "A biblioteca" explica a realização da segunda etapa e por fim, o subtópico "Programa principal" corresponde a terceira etapa.
+Os subtópicos "Comunicação HPS-FPGA", "Remoção de módulos desnecessários" e "Criação de novas instruções na FPGA" elencam os passos feitos na primeira etapa, já o subtópico "Biblioteca" explica a realização da segunda etapa e por fim, o subtópico "Programa principal" corresponde a terceira etapa.
 
 ## 🗣 Comunicação HPS-FPGA
 Na placa DE1-SoC existem 2 escopos principais, o HPS, contendo o processador ARMv7 e o sistema operacional Linux, e a parte do FPGA, a parte programável via Quartus. Contudo, entre essas 2 partes da placa, há uma conexão que permite enviar e receber dados, conhecida como ponte AXI, e por meio de criação de interfaces de comunicação, que correspondem a periféricos criados na FPGA, pode-se então ter controle de forma os quais dados são enviados para FPGA e lidos da FPGA através do HPS.
@@ -178,7 +180,60 @@ Além disso, foi adicionado 3 novas operações: **STORE_MATRIX1**, **STORE_MATR
 | `1001`     | Load_matrixR                | Não usa esse campo                                  | Não usa esse campo                                                                 | Usado para ler os bits armazenados no buffer/registrador com base no offset da posição       | Retorna para HPS 32 bits presentes no registrador de resultado com base no offset dado pelo campo da posição          |
 
 
-## 📚 A biblioteca
+## 📚 Biblioteca
+A biblioteca `Matriks` foi escrita em Assembly para ARMv7 e serve como interface entre o processador (HPS) da DE1-SoC e o coprocessador de operações com matrizes implementado em Verilog na FPGA . Ela abstrai os detalhes da comunicação com a FPGA e fornece um conjunto de funções que facilitam o envio e o recebimento de dados, bem como o controle das operações aritméticas.
+
+A criação da biblioteca foi baseada nas PIOs presentes no projeto do coprocessador no Quartus, explicadas alguns [tópicos acima](#-comunicação-HPS-FPGA), mapeandoo os registradores da FPGA na memória virtual do Linux através do /dev/mem.
+
+### 🔧 Como funciona a biblioteca?
+
+A biblioteca realiza, em geral, 6 ações, incluindo: inicializar o mapeamento de memória, enviar instruções, enviar um sinal de início de operação, receber os dados do coprocessador, verificar situações de overflow e desmapear a memória. Abaixo, uma breve descrição de cada etapa:
+
+1. **Inicialização**: Mapeia os registradores da FPGA na memória virtual do Linux, através de `/dev/mem` (utilizando a função start_program).
+2. **Envio de dados**: Envia pares de valores inteiros (elementos da matriz ou dados intermediários) para a FPGA.
+3. **Início da operação**: Aciona o coprocessador para realizar a operação desejada (soma, subtração, multiplicação, etc.).
+4. **Recebimento dos resultados**: Lê os dados processados de volta para o HPS.
+5. **Verificação de overflow**: Verifica se houve overflow durante o processamento.
+6. **Finalização**: Desfaz o mapeamento de memória e encerra o uso da biblioteca.
+
+---
+
+### 📌 Funções disponíveis
+
+- **`start_program`**  
+  Faz o mapeamento de memória necessária para acessar os registradores da FPGA. Deve ser chamada antes de qualquer outra função. Sem mapear a memória, não é possível enviar instruções.
+
+- **`exit_program`**  
+  Libera os recursos alocados e encerra o uso da biblioteca. É utilizada apenas ao encerrar o programa. 
+
+> :warning: É importante desmapear a memória para não obter comportamentos inesperados na execução da biblioteca.
+
+- **`operate_buffer_send(opcode, size, pos, buffer_ptr)`**  
+  Envia uma instrução ao coprocessador junto com dois operandos de 8 bits, que devem estar armazenados consecutivamente no endereço apontado por `buffer_ptr`, além do tamanho da matriz nxn e a posição no array de dados (no endereço apontado). Essa função é usada para preencher o buffer interno com dados das matrizes.
+
+> :warning: As matrizes são calculadas sempre como sendo 5x5. Entretanto, a função envia apenas 32bits por limitações físicas da placa. Dessa forma, qualquer tratamento para envio de matrizes, caso não utilize o programa conjunto, deve realizar o tratamento adequado. Mais informações estão disponíveis no [programa principal](#-programa-principal).
+
+- **`calculate_matriz(opcode, size, pos)`**  
+  Inicia a operação no coprocessador com base nos parâmetros informados anteriormente em operate_buffer_send. Essa função **não** envia dados, apenas envia um sinal de início de operação.
+
+- **`operate_buffer_receive(opcode, size, pos, buffer_ptr)`**  
+  Solicita ao coprocessador o resultado de uma operação. O resultado (32 bits) será armazenado nos 4 bytes a partir do endereço indicado por `buffer_ptr`, seguindo a posição apontada. Como o resultado sempre é enviado como matriz 5x5, o tratamento do recebimento de dados também deve ser tratado adequadamente no programa em C.
+
+- **`signal_overflow()`**  
+  Verifica se houve overflow na última operação. Retorna 1 em caso de overflow e 0 caso contrário.
+
+---
+
+### ✏️ Exemplo de uso
+
+```C
+    // envia os dados com o opcode
+    temp_pos = matrixA;
+    for (i=0;i<13;i++){
+        flagOK1 = operate_buffer_send(storeMatrixA, (size-2), i, temp_pos);
+        temp_pos += 2;
+    }
+```
 
 
 ## 💻 Programa principal
